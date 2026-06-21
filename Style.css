@@ -1,0 +1,76 @@
+body{
+background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.navbar-nav .nav-link{
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.navbar-nav .nav-link::after{
+    content: '';
+    position: absolute;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #fff;
+    transition: width 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover::after{
+    width: 100%;
+
+}
+
+.contenedor-principal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px; 
+  min-height: 60vh;   
+  background-color: #ffffff; 
+}
+
+.contenedor-exterior {
+  border: 15px solid #d9d9d9; 
+  border-radius: 20px;       
+  padding: 20px;             
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
+  width: 100%;               
+  max-width: 800px;          
+}
+
+.contenedor-interior {
+  background-color: #fff;     
+  border-radius: 15px;       
+  min-height: 350px;           
+  padding: 40px;    
+}
+
+.btn-posponer {
+    background-color: #cde35b; 
+    color: #000000;          
+    border: none;              
+    font-weight: 500;         
+}
+
+.btn-posponer:hover {
+    background-color: #b8cc52; 
+    color: #000000;
+}
+
+.btn-aceptar {
+    background-color: #8cb4e9; 
+    color: #000000;            
+    border: none;
+    font-weight: 500;
+}
+
+.btn-aceptar:hover {
+    background-color: #7da2d2; 
+    color: #000000;
+}
