@@ -1,3 +1,4 @@
+
 body{
 background-color: #FFFFFF;
   display: flex;
@@ -73,4 +74,102 @@ background-color: #FFFFFF;
 .btn-aceptar:hover {
     background-color: #7da2d2; 
     color: #000000;
+}
+
+#tabsCitas .nav-link.active {
+  background-color: #000;
+  color: white;
+}
+
+#tabsCitas .nav-link {
+  color: black;
+}
+
+.form-control,
+.form-select {
+  border: 1px solid #ddd;
+  padding: 10px 15px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  box-shadow: none;
+  border-color: #999;
+}
+
+.nav-pills .nav-link.active {
+  background-color: white;
+  color: black;
+}
+
+.nav-pills .nav-link {
+  color: black;
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+
+/*Tamaño de la barra de búsqueda */
+.buscador {
+  width: 520px;
+  flex: 0 0 520px;
+}
+
+/* Estado normal de los filtros */
+.btn-check + .btn-filtro {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+  font-weight: 600;
+}
+
+
+.btn-check + .btn-filtro:hover {
+  background-color: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+/*Cuando este en estado seleccionado */
+.btn-check:checked + .btn-filtro {
+  background-color: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+
+.btn-check:checked + .btn-filtro,
+.btn-check:active + .btn-filtro,
+.btn-check:focus + .btn-filtro,
+.btn-check:checked + .btn-filtro:focus,
+.btn-filtro:active {
+  background-color: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.btn-filtro:active {
+  background-color: #000 !important;
+  border-color: #000 !important;
+  color: white !important;
+}
+
+.historial-contenedor {
+  background-color: #d9d9d9;
+  padding: 10px 35px 30px;
+}
+
+.fila-cita {
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px 20px;
+  align-items: center;
+}
+
+.fila-cita p {
+  margin: 0;
+}
+
+.motivo-cita {
+  text-align: center;
 }
