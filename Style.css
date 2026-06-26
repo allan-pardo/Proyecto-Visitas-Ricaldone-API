@@ -110,3 +110,73 @@ background-color: #FFFFFF;
 .custom-placeholder::-webkit-input-placeholder { color: #9CA3AF !important; }
 .custom-placeholder::-moz-placeholder { color: #9CA3AF !important; opacity: 1; }
 .custom-placeholder:-ms-input-placeholder { color: #9CA3AF !important; }
+
+.historial-contenedor {
+  background-color: #d9d9d9;
+  padding: 12px 35px 30px;
+  border-radius: 4px;
+}
+
+/*------------------------------------------------------------------------------------------*/
+/*Estaes la seccion de el recuadro de Historial de citas*/
+
+
+.tabla-citas {
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  margin-bottom: 0;
+}
+
+
+.tabla-citas thead th {
+  background-color: transparent;
+  border: none;
+  font-weight: 700;
+  color: #000;
+}
+
+/* Celdas de cada registro */
+.tabla-citas tbody td {
+  background-color: #fff;
+  border: none;
+  padding: 14px 18px;
+}
+
+/* Redondear primera y última celda de cada fila */
+.tabla-citas tbody tr td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.tabla-citas tbody tr td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+
+.tabla-citas td {
+  vertical-align: middle;
+}
+
+/* Estado */
+.estado-cita {
+  display: inline-block;
+  color: white;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.estado-pendiente {
+  background-color: #f0ad4e;
+}
+
+.estado-aprobado {
+  background-color: #198754;
+}
+
+.estado-rechazado {
+  background-color: #dc3545;
+}
+
