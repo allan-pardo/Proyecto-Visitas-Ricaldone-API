@@ -4,33 +4,43 @@ Chicos esto lo dejare asi porque me falta terminarlo bien
 
 */
 
+const formCita = document.getElementById("formCita");
+/*Esta declaracion nos permitira que cuando no tenga datos de alguna cita, salga un mensaje*/
 const mensajeVacio = document.getElementById("mensajeVacio");
 const tablaHistorial = document.getElementById("tablaHistorial");
 const cuerpoTablaCitas = document.getElementById("cuerpoTablaCitas");
 const filtros = document.querySelectorAll('input[name="filtro"]');
 
-const citas = [
-  {
-    fechaHora: "14/5/2026, 11:25 A.M",
-    estudiante: "David Ramírez",
-    motivo: "Bajo rendimiento académico",
-    estado: "Pendiente"
-  },
-  {
-    fechaHora: "15/5/2026, 9:00 A.M",
-    estudiante: "María López",
-    motivo: "Reunión con docente",
-    estado: "Aprobado"
-  },
-  {
-    fechaHora: "16/5/2026, 10:30 A.M",
-    estudiante: "Carlos Hernández",
-    motivo: "Permiso de salida",
-    estado: "Rechazado"
-  }
-];
+let citas = [];
 
-mostrarCitas(citas);
+formCita.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const nombre = document.getElementById("nombreEstudiante").value.trim();
+  const fecha = document.getElementById("fechaCita").value;
+  const hora = document.getElementById("horaCita").value;
+  const motivo = document.getElementById("motivoCita").value;
+  const observaciones = document.getElementById("observaciones").value.trim();
+
+  if (nombre === "" || fecha === "" || motivo === "") {
+    alert("Complete los campos obligatorios.");
+    return;
+  }
+
+  const nuevaCita = {
+    fechaHora: `${fecha}, ${hora}`,
+    estudiante: nombre,
+    motivo: motivo,
+    observaciones: observaciones,
+    estado: "Pendiente"
+  };
+
+  citas.push(nuevaCita);
+
+  formCita.reset();
+
+  mostrarCitas(citas);
+});
 
 filtros.forEach(filtro => {
   filtro.addEventListener("change", function () {
