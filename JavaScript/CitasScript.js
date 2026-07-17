@@ -1,17 +1,35 @@
-/*
-
-Chicos esto lo dejare asi porque me falta terminarlo bien
-
-*/
 
 const formCita = document.getElementById("formCita");
-/*Esta declaracion nos permitira que cuando no tenga datos de alguna cita, salga un mensaje*/
 const mensajeVacio = document.getElementById("mensajeVacio");
 const tablaHistorial = document.getElementById("tablaHistorial");
 const cuerpoTablaCitas = document.getElementById("cuerpoTablaCitas");
 const filtros = document.querySelectorAll('input[name="filtro"]');
 
-let citas = [];
+const citas = [
+  {
+    fechaHora: "14/5/2026, 11:25 A.M",
+    estudiante: "David Ramírez",
+    motivo: "Bajo rendimiento académico",
+    estado: "Pendiente"
+  },
+  {
+    fechaHora: "15/5/2026, 9:00 A.M",
+    estudiante: "María López",
+    motivo: "Reunión con docente",
+    estado: "Aprobado"
+  },
+  {
+    fechaHora: "16/5/2026, 10:30 A.M",
+    estudiante: "Carlos Hernández",
+    motivo: "Permiso de salida",
+    estado: "Rechazado"
+  }
+];
+
+
+citas.push(nuevaCita);
+
+mostrarCitas(citas);
 
 formCita.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -28,7 +46,7 @@ formCita.addEventListener("submit", function (e) {
   }
 
   const nuevaCita = {
-    fechaHora: `${fecha}, ${hora}`,
+    fechaHora: `${fecha}, ${hora || "Sin hora"}`,
     estudiante: nombre,
     motivo: motivo,
     observaciones: observaciones,
