@@ -98,25 +98,25 @@
                 <form id="formCita">
 
                     <div class="mb-3">
-                        <label class="form-label">Nombre del Estudiante *</label>
-                        <input type="text" class="form-control rounded-pill" id="nombreEstudiante">
+                        <label class="form-label">Nombre del Estudiante <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-pill" id="nombreEstudiante" required>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                        <label class="form-label">Fecha *</label>
-                        <input type="date" class="form-control rounded-pill" id="fechaCita">
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control rounded-pill" id="fechaCita" required>
                         </div>
 
                         <div class="col-md-6">
-                        <label class="form-label">Hora</label>
-                        <input type="time" class="form-control rounded-pill" id="horaCita">
+                        <label class="form-label">Hora <span class="text-danger">*</span></label>
+                        <input type="time" class="form-control rounded-pill" id="horaCita" required>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Motivo *</label>
-                        <select class="form-select rounded-pill" id="motivoCita">
+                        <label class="form-label">Motivo <span class="text-danger">*</span></label>
+                        <select class="form-select rounded-pill" id="motivoCita" required>
                         <option value="">Seleccione motivo</option>
                         <option value="Reunión con docente">Reunión con docente</option>
                         <option value="Permiso de salida">Permiso de salida</option>
@@ -226,10 +226,9 @@
 
 
 
-    <footer class="py-3 mt-3 bg-dark text-white">
+    <footer class="py-3 mt-auto text-white" style="background-color: #1C1B1B;">
         <div class="container">
             <div class="row text-center justify-content-center">
-                
                 <div class="col-md-5">
                     <p class="mb-1">
                         <i class="bi bi-geo-alt-fill"></i>
@@ -243,7 +242,6 @@
                         <i class="bi bi-telephone-fill"></i>
                         Telefono de atención: +503 2234-6010
                     </p>
-                    
                 </div>
 
                 <div class="col-md-5 mt-3 mt-md-0">
@@ -254,19 +252,15 @@
                         Sábados hasta mediodía
                     </p>
                     <p class="mb-1">
-                        Correo:
-                        registro_academico@ricaldone.edu.sv
+                        Correo: registro_academico@ricaldone.edu.sv
                     </p>
                 </div>
-                
             </div>
-            
+
             <hr class="border-secondary">
-            
+
             <div class="text-center">
-                <small>
-                    2026 Instituto Técnico Ricaldone - Sistema de Control de Visitas
-                </small>
+                &copy; 2026 Instituto Técnico Ricaldone - Sistema de Control de Visitas
             </div>
         </div>
     </footer>

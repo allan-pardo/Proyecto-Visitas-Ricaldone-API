@@ -1,7 +1,7 @@
 
 const formCita = document.getElementById("formCita");
 const mensajeVacio = document.getElementById("mensajeVacio");
-const tablaHistorial = document.getElementById("tablaHistorial");
+const tablaHistorial = document.getElementById("contenedorTablaCitas");
 const cuerpoTablaCitas = document.getElementById("cuerpoTablaCitas");
 const filtros = document.querySelectorAll('input[name="filtro"]');
 
@@ -26,8 +26,15 @@ const citas = [
   }
 ];
 
-
-citas.push(nuevaCita);
+// Configurar fecha mínima (hoy) para evitar fechas pasadas
+const fechaInput = document.getElementById("fechaCita");
+if (fechaInput) {
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoy.getDate()).padStart(2, '0');
+  fechaInput.min = `${anio}-${mes}-${dia}`;
+}
 
 mostrarCitas(citas);
 
@@ -40,13 +47,23 @@ formCita.addEventListener("submit", function (e) {
   const motivo = document.getElementById("motivoCita").value;
   const observaciones = document.getElementById("observaciones").value.trim();
 
-  if (nombre === "" || fecha === "" || motivo === "") {
-    alert("Complete los campos obligatorios.");
+  // Validar que todos los campos requeridos estén llenos
+  if (nombre === "" || fecha === "" || hora === "" || motivo === "") {
+    alert("Complete todos los campos obligatorios.");
+    return;
+  }
+
+  // Validar que la fecha no sea en el pasado
+  const selectedDate = new Date(fecha + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (selectedDate < today) {
+    alert("La fecha no puede ser en el pasado.");
     return;
   }
 
   const nuevaCita = {
-    fechaHora: `${fecha}, ${hora || "Sin hora"}`,
+    fechaHora: `${fecha}, ${hora}`,
     estudiante: nombre,
     motivo: motivo,
     observaciones: observaciones,
@@ -56,6 +73,15 @@ formCita.addEventListener("submit", function (e) {
   citas.push(nuevaCita);
 
   formCita.reset();
+
+  // Re-establecer el atributo min después de resetear el formulario
+  if (fechaInput) {
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    fechaInput.min = `${anio}-${mes}-${dia}`;
+  }
 
   mostrarCitas(citas);
 });
