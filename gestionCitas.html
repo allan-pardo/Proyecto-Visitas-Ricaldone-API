@@ -1,24 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visitas Ricaldone: Docentes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="./css/Style.css">
+    <link rel="stylesheet" href="./Style.css">
     <link rel="shortcut icon" href="./img/logoRicaldone.png" type="image/x-icon">
 </head>
-
 <body>
-
+    
     <header>
-
-        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1C1B1B;">
+        
+         <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1C1B1B;">
             <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <a class="navbar-brand d-flex align-items-center" href="Inicio.html">
                     <img src="img/logoRicaldone.png" alt="Logo Ricaldone" width="70" class="me-3">
                     <span class="fs-5 fw-semibold d-none d-sm-block">
                         Instituto Tecnico Ricaldone
@@ -29,19 +26,19 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="collapse navbar-collapse" id="txtNavbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="index.html">Inicio</a>
+                            <a class="nav-link active" href="Inicio.html">Inicio</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" href="gestionCitas.html">Gestion de Citas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="solicitudes.html">Solicitudes</a>
+                            <a class="nav-link active" href="solicitudes.html">Solicitudes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="perfil.html">Perfil</a>
+                            <a class="nav-link active" href="perfil.html">Perfil</a>
                         </li>
                     </ul>
                 </div>
@@ -56,165 +53,170 @@
         <h2 class="text-center mb-4">Gestión de Citas</h2>
 
         <div class="mx-auto mb-5" style="max-width: 560px;">
-            <ul class="nav nav-pills bg-dark-subtle rounded-pill p-1 justify-content-center" id="tabsCitas">
-                <li class="nav-item w-50">
-                    <button class="nav-link active rounded-pill w-100" data-bs-toggle="pill"
-                        data-bs-target="#nuevaCita">
-                        Nueva Cita
-                    </button>
-                </li>
+            <ul class="nav nav-pills bg-dark-subtle rounded-pill p-1 justify-content-center" id="txtTabsCitas">
+            <li class="nav-item w-50">
+                <button 
+                class="nav-link active rounded-pill w-100" 
+                data-bs-toggle="pill" 
+                data-bs-target="#nuevaCita">
+                Nueva Cita
+                </button>
+            </li>
 
-                <li class="nav-item w-50">
-                    <button class="nav-link rounded-pill w-100" data-bs-toggle="pill" data-bs-target="#historialCitas">
-                        Historial
-                    </button>
-                </li>
+            <li class="nav-item w-50">
+                <button 
+                class="nav-link rounded-pill w-100" 
+                data-bs-toggle="pill" 
+                data-bs-target="#historialCitas">
+                Historial
+                </button>
+            </li>
             </ul>
         </div>
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="nuevaCita">
+            <div class="tab-pane fade show active" id="txtNuevaCita">
 
-                <div class="card border-0 mx-auto" style="max-width: 520px;">
-                    <div class="card-body">
+            <div class="card border-0 mx-auto" style="max-width: 520px;">
+                <div class="card-body">
 
-                        <!-- Formulario de las citas -->
+                 <!-- Formulario de las citas -->   
 
-                        <div class="text-center mb-4">
-                            <div class="bg-secondary-subtle rounded-4 d-inline-flex justify-content-center align-items-center"
-                                style="width: 70px; height: 60px;">
-                                <i class="bi bi-calendar3 fs-2"></i>
-                            </div>
+                <div class="text-center mb-4">
+                    <div class="bg-secondary-subtle rounded-4 d-inline-flex justify-content-center align-items-center" style="width: 70px; height: 60px;">
+                    <i class="bi bi-calendar3 fs-2"></i>
+                    </div>
 
-                            <h4 class="mt-3 mb-1">Registrar Nueva Cita</h4>
-                            <p class="text-secondary fs-5">
-                                Complete el formulario para <br>
-                                agendar una cita o permiso
-                            </p>
+                    <h4 class="mt-3 mb-1">Registrar Nueva Cita</h4>
+                    <p class="text-secondary fs-5">
+                    Complete el formulario para <br>
+                    agendar una cita o permiso
+                    </p>
+                </div>
+
+                <form id="txtFormCita">
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Estudiante <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-pill" id="txtNombreEstudiante" required>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control rounded-pill" id="txtFechaCita" required>
                         </div>
 
-                        <form id="formCita">
-
-                            <div class="mb-3">
-                                <label class="form-label">Nombre del Estudiante <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control rounded-pill" id="nombreEstudiante" required>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Fecha <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control rounded-pill" id="fechaCita" required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label">Hora <span class="text-danger">*</span></label>
-                                    <input type="time" class="form-control rounded-pill" id="horaCita" required>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Motivo <span class="text-danger">*</span></label>
-                                <select class="form-select rounded-pill" id="motivoCita" required>
-                                    <option value="">Seleccione motivo</option>
-                                    <option value="Reunión con docente">Reunión con docente</option>
-                                    <option value="Permiso de salida">Permiso de salida</option>
-                                    <option value="Consulta académica">Consulta académica</option>
-                                    <option value="Bajo rendimiento académico">Bajo rendimiento académico</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label">Observaciones</label>
-                                <textarea class="form-control rounded-4" id="observaciones" rows="2"
-                                    placeholder="Información adicional..."></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-dark w-100 rounded-pill py-2">
-                                Registrar
-                            </button>
-
-                        </form>
-
+                        <div class="col-md-6">
+                        <label class="form-label">Hora <span class="text-danger">*</span></label>
+                        <input type="time" class="form-control rounded-pill" id="txtHoraCita" required>
+                        </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Motivo <span class="text-danger">*</span></label>
+                        <select class="form-select rounded-pill" id="txtMotivoCita" required>
+                        <option value="">Seleccione motivo</option>
+                        <option value="Reunión con docente">Reunión con docente</option>
+                        <option value="Permiso de salida">Permiso de salida</option>
+                        <option value="Consulta académica">Consulta académica</option>
+                        <option value="Bajo rendimiento académico">Bajo rendimiento académico</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control rounded-4" id="txtObservaciones" rows="2" placeholder="Información adicional..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 rounded-pill py-2">
+                        Registrar
+                    </button>
+
+                </form>
+
                 </div>
+            </div>
 
             </div>
 
             <!-- Historial -->
-            <div class="tab-pane fade" id="historialCitas">
+            <div class="tab-pane fade" id="txtHistorialCitas">
 
-                <div class="mx-auto" style="max-width: 1000px;">
+            <div class="mx-auto" style="max-width: 1000px;">
 
-                    <div class="d-flex align-items-center gap-3 flex-wrap mb-4">
+                <div class="d-flex align-items-center gap-3 flex-wrap mb-4">
 
-                        <div class="input-group buscador">
-                            <span class="input-group-text bg-white border-end-0 rounded-start-pill">
-                                🔍
-                            </span>
-                            <input type="text" class="form-control border-start-0 rounded-end-pill"
-                                placeholder="Buscar...">
-                        </div>
+                <div class="input-group buscador">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill">
+                    🔍
+                    </span>
+                    <input type="text" class="form-control border-start-0 rounded-end-pill" placeholder="Buscar...">
+                </div>
 
-                        <input type="radio" class="btn-check" name="filtro" id="filtroHistorial" value="Todos" checked>
-                        <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroHistorial">
-                            Historial
-                        </label>
+                <input type="radio" class="btn-check" name="filtro" id="txtFiltroHistorial" value="Todos" checked>
+                <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroHistorial">
+                Historial
+                </label>
 
-                        <input type="radio" class="btn-check" name="filtro" id="filtroPendiente" value="Pendiente">
-                        <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroPendiente">
-                            Pendiente
-                        </label>
+                <input type="radio" class="btn-check" name="filtro" id="txtFiltroPendiente" value="Pendiente">
+                <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroPendiente">
+                Pendiente
+                </label>
 
-                        <input type="radio" class="btn-check" name="filtro" id="filtroAprobado" value="Aprobado">
-                        <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroAprobado">
-                            Aprobado
-                        </label>
+                <input type="radio" class="btn-check" name="filtro" id="txtFiltroAprobado" value="Aprobado">
+                <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroAprobado">
+                Aprobado
+                </label>
 
-                        <input type="radio" class="btn-check" name="filtro" id="filtroRechazado" value="Rechazado">
-                        <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroRechazado">
-                            Rechazado
-                        </label>
+                <input type="radio" class="btn-check" name="filtro" id="txtFiltroRechazado" value="Rechazado">
+                <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroRechazado">
+                Rechazado
+                </label>
 
+                </div>
+
+                <br>
+
+                <div id="txtContenedorHistorial" class="historial-contenedor">
+
+                    <div
+                        id="txtMensajeVacio"
+                        class="shadow p-4 mb-5 bg-body-tertiary rounded text-center"
+                    >
+                        <p class="fs-3 mb-4">No hay citas registradas</p>
+
+                        <h4 class="text-secondary">
+                        Registre una nueva cita para comenzar
+                        </h4>
                     </div>
 
-                    <br>
+                    <div id="txtContenedorTablaCitas" class="table-responsive">
 
-                    <div id="contenedorHistorial" class="historial-contenedor">
+                        <table id="txtTablaCitas"
+                            class="table tabla-citas align-middle text-center">
 
-                        <div id="mensajeVacio" class="shadow p-4 mb-5 bg-body-tertiary rounded text-center">
-                            <p class="fs-3 mb-4">No hay citas registradas</p>
+                        <thead id="txtEncabezadoTablaCitas">
+                            <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Estudiante</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            </tr>
+                        </thead>
 
-                            <h4 class="text-secondary">
-                                Registre una nueva cita para comenzar
-                            </h4>
-                        </div>
+                        <tbody id="txtCuerpoTablaCitas">
+                            <!-- JavaScript inserta las filas aquí -->
+                        </tbody>
 
-                        <div id="contenedorTablaCitas" class="table-responsive">
-
-                            <table id="tablaCitas" class="table tabla-citas align-middle text-center">
-
-                                <thead id="encabezadoTablaCitas">
-                                    <tr>
-                                        <th>Fecha y Hora</th>
-                                        <th>Estudiante</th>
-                                        <th>Motivo</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody id="cuerpoTablaCitas">
-                                    <!-- JavaScript inserta las filas aquí -->
-                                </tbody>
-
-                            </table>
-
-                        </div>
+                        </table>
 
                     </div>
 
                 </div>
+
+            </div>
 
             </div>
 
@@ -229,12 +231,15 @@
             <div class="row text-center justify-content-center">
                 <div class="col-md-5">
                     <p class="mb-1">
+                        <i class="bi bi-geo-alt-fill"></i>
                         Av. Aguilares #218, Col. Libertad, San Salvador
                     </p>
                     <p class="mb-1">
+                        <i class="bi bi-telephone-fill"></i>
                         Telefono: +503 2234-6000
                     </p>
                     <p class="mb-1">
+                        <i class="bi bi-telephone-fill"></i>
                         Telefono de atención: +503 2234-6010
                     </p>
                 </div>
@@ -259,50 +264,9 @@
             </div>
         </div>
     </footer>
-
-    <!-- Modal de Cita Agendada con Éxito -->
-    <div id="modalCitaAgendada" class="modal-overlay-custom">
-        <div class="modal-contenedor-exterior">
-            <div class="modal-contenedor-interior">
-                <h2 class="modal-titulo">Cita Agendada</h2>
-
-                <div class="modal-alerta-verde d-flex flex-column align-items-center justify-content-center">
-                    <!-- SVG Checkmark Icon -->
-                    <svg width="68" height="68" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        class="mb-3">
-                        <circle cx="256" cy="256" r="256" fill="white" />
-                        <path
-                            d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 472c-119.3 0-216-96.7-216-216S136.7 40 256 40s216 96.7 216 216-96.7 216-216 216z"
-                            fill="#72C05B" />
-                        <path
-                            d="M377 167c-7.8-7.8-20.5-7.8-28.3 0l-144.1 144-60.7-60.6c-7.8-7.8-20.5-7.8-28.3 0s-7.8 20.5 0 28.3l74.8 74.8c3.9 3.9 9 5.9 14.1 5.9s10.2-2 14.1-5.9l158.4-158.4c7.8-7.9 7.8-20.5 0-28.1z"
-                            fill="#72C05B" />
-                    </svg>
-
-                    <h4 class="modal-alerta-titulo">Su cita fue agendada con exito</h4>
-                    <p class="modal-alerta-texto">
-                        El estudiante <span id="modalNombreEstudiante" class="fw-bold">David Eduardo Ramirez
-                            Escobar</span> sera notificado
-                    </p>
-                    <p class="modal-alerta-info" id="modalDetalleFechaHora">
-                        sobre la convocatoria el dia 14 de mayo de 2026 a las 11:25 A.M
-                    </p>
-                </div>
-
-                <div class="d-flex justify-content-center gap-3">
-                    <button type="button" id="btn-cerrar-modal-citas"
-                        class="btn modal-boton-volver rounded-pill px-5">Volver</button>
-                    <button type="button" id="btn-ver-citas" class="btn modal-boton-citas rounded-pill px-5">Ver
-                        Citas</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script src="./JavaScript/CitasScript.js"></script>
+    <script src="JS/Controller/GestionCitasController.js"></script>
 </body>
-
 </html>
