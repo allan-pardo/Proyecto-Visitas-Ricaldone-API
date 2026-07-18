@@ -38,6 +38,35 @@ if (fechaInput) {
 
 mostrarCitas(citas);
 
+// Funciones para formatear fecha y hora para el modal
+function formatearFechaEspanol(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const year = parts[0];
+  const monthIndex = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  
+  const months = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+  ];
+  
+  return `${day} de ${months[monthIndex]} de ${year}`;
+}
+
+function formatearHoraAMPM(timeStr) {
+  if (!timeStr) return "";
+  const parts = timeStr.split(':');
+  if (parts.length < 2) return timeStr;
+  let hours = parseInt(parts[0], 10);
+  const minutes = parts[1];
+  const ampm = hours >= 12 ? 'P.M' : 'A.M';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // la hora '0' debe ser '12'
+  return `${hours}:${minutes} ${ampm}`;
+}
+
 formCita.addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -62,8 +91,12 @@ formCita.addEventListener("submit", function (e) {
     return;
   }
 
+  // Formatear fecha y hora para mostrar en el modal y la tabla
+  const fechaFormateada = formatearFechaEspanol(fecha);
+  const horaFormateada = formatearHoraAMPM(hora);
+
   const nuevaCita = {
-    fechaHora: `${fecha}, ${hora}`,
+    fechaHora: `${fechaFormateada}, ${horaFormateada}`,
     estudiante: nombre,
     motivo: motivo,
     observaciones: observaciones,
@@ -71,6 +104,19 @@ formCita.addEventListener("submit", function (e) {
   };
 
   citas.push(nuevaCita);
+
+  // Rellenar datos en el modal
+  const modalNombre = document.getElementById("modalNombreEstudiante");
+  const modalDetalle = document.getElementById("modalDetalleFechaHora");
+  const modalCita = document.getElementById("modalCitaAgendada");
+
+  if (modalNombre) modalNombre.textContent = nombre;
+  if (modalDetalle) modalDetalle.textContent = `sobre la convocatoria el dia ${fechaFormateada} a las ${horaFormateada}`;
+
+  // Mostrar modal
+  if (modalCita) {
+    modalCita.classList.add("active");
+  }
 
   formCita.reset();
 
@@ -85,6 +131,31 @@ formCita.addEventListener("submit", function (e) {
 
   mostrarCitas(citas);
 });
+
+// Eventos de botones del Modal de Citas
+const modalCita = document.getElementById("modalCitaAgendada");
+const btnCerrarModalCitas = document.getElementById("btn-cerrar-modal-citas");
+const btnVerCitas = document.getElementById("btn-ver-citas");
+
+if (btnCerrarModalCitas && modalCita) {
+  btnCerrarModalCitas.addEventListener("click", function() {
+    modalCita.classList.remove("active");
+  });
+}
+
+if (btnVerCitas && modalCita) {
+  btnVerCitas.addEventListener("click", function() {
+    modalCita.classList.remove("active");
+    // Activar pestaña Historial
+    const tabHistorialBtn = document.querySelector('[data-bs-target="#historialCitas"]');
+    if (tabHistorialBtn) {
+      // Usar API de bootstrap para activar la tab
+      const tab = new bootstrap.Tab(tabHistorialBtn);
+      tab.show();
+    }
+  });
+}
+
 
 filtros.forEach(filtro => {
   filtro.addEventListener("change", function () {

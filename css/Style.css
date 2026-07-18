@@ -225,3 +225,120 @@ body > *:not(header) {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* Modal de Solicitud Aceptada con Éxito */
+.modal-overlay-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-overlay-custom.active {
+  display: flex;
+}
+
+.modal-contenedor-exterior {
+  border: 15px solid #d9d9d9;
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  width: 100%;
+  max-width: 800px;
+  background-color: #ffffff;
+  animation: modalBounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modalBounceIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-contenedor-interior {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+}
+
+.modal-titulo {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #000000;
+  margin-bottom: 25px;
+}
+
+.modal-alerta-verde {
+  background-color: #D2F7B9; /* Soft light green matching the screenshot */
+  border-radius: 20px;
+  padding: 30px 25px;
+  margin-bottom: 30px;
+}
+
+.modal-alerta-titulo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000000;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.modal-alerta-texto {
+  font-size: 1.05rem;
+  color: #000000;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.modal-alerta-info {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 0;
+}
+
+.modal-boton-volver {
+  background-color: #cde35b;
+  color: #000000;
+  border: none;
+  font-weight: bold;
+  padding: 10px 60px;
+  font-size: 1.1rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.modal-boton-volver:hover {
+  background-color: #b8cc52;
+  transform: scale(1.05);
+}
+
+.modal-boton-citas {
+  background-color: #8cb4e9;
+  color: #000000;
+  border: none;
+  font-weight: bold;
+  padding: 10px 40px;
+  font-size: 1.1rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.modal-boton-citas:hover {
+  background-color: #7da2d2;
+  transform: scale(1.05);
+}
+
+
+

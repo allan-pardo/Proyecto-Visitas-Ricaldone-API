@@ -16,3 +16,24 @@ if (fechaSugeridaInput) {
     const dia = String(hoy.getDate()).padStart(2, '0');
     fechaSugeridaInput.min = `${anio}-${mes}-${dia}`;
 }
+
+// Modal de Solicitud Aceptada
+const btnAceptarSolicitud = document.getElementById("btn-aceptar-solicitud");
+const modalSolicitudAceptada = document.getElementById("modalSolicitudAceptada");
+const btnCerrarModal = document.getElementById("btn-cerrar-modal");
+
+if (btnAceptarSolicitud && modalSolicitudAceptada) {
+    btnAceptarSolicitud.addEventListener("click", function(e) {
+        e.preventDefault();
+        modalSolicitudAceptada.classList.add("active");
+    });
+}
+
+if (btnCerrarModal && modalSolicitudAceptada) {
+    btnCerrarModal.addEventListener("click", function() {
+        modalSolicitudAceptada.classList.remove("active");
+        // Redirect to solicitudes.html on clicking Volver to simulate navigation
+        window.location.href = "solicitudes.html";
+    });
+}
+
