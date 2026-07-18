@@ -1,9 +1,24 @@
-body{
-background-color: #FFFFFF;
+@keyframes pageFadeIn {
+  from {
+    opacity: 0.3;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body {
+  background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   margin: 0;
+}
+
+body > *:not(header) {
+  animation: pageFadeIn 0.25s ease-out forwards;
 }
 
 .navbar-nav .nav-link{
@@ -17,13 +32,14 @@ background-color: #FFFFFF;
     height: 2px;
     bottom: 0;
     left: 0;
+    width: 0;
     background-color: #fff;
     transition: width 0.3s ease;
 }
 
-.navbar-nav .nav-link:hover::after{
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after{
     width: 100%;
-
 }
 
 .contenedor-principal {
@@ -178,5 +194,34 @@ background-color: #FFFFFF;
 
 .estado-rechazado {
   background-color: #dc3545;
+}
+
+/* Efectos de Hover y Animaciones para el Dashboard */
+
+.hover-scale-card {
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+}
+
+.hover-scale-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.btn-hover-effect {
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-hover-effect:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-hover-effect:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
