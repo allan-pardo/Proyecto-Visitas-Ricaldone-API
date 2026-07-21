@@ -64,7 +64,25 @@ body > *:not(header) {
   background-color: #fff;     
   border-radius: 15px;       
   min-height: 350px;           
-  padding: 40px;    
+  padding: 40px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Permite que correos, nombres y otros valores largos respeten la tarjeta. */
+.contenedor-interior .row > * {
+  min-width: 0;
+}
+
+.contenedor-interior p,
+.contenedor-interior h1,
+.contenedor-interior h2,
+.contenedor-interior h3,
+.contenedor-interior h4,
+.contenedor-interior h5,
+.contenedor-interior h6 {
+  max-width: 100%;
+  white-space: normal;
 }
 
 .btn-posponer {
@@ -298,6 +316,23 @@ body > *:not(header) {
   .filtros-historial .btn-filtro {
     flex: 1 1 calc(50% - 8px);
   }
+
+  .acciones-solicitud {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px !important;
+    margin-top: 2rem !important;
+  }
+
+  .acciones-solicitud .btn {
+    width: 135px;
+    padding: 7px 16px !important;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
 }
 
 /* Modal de Solicitud Aceptada con Éxito */
@@ -359,7 +394,7 @@ body > *:not(header) {
 }
 
 .modal-alerta-verde {
-  background-color: #D2F7B9; /* Soft light green matching the screenshot */
+  background-color: #D2F7B9; 
   border-radius: 20px;
   padding: 30px 25px;
   margin-bottom: 30px;
@@ -417,7 +452,7 @@ body > *:not(header) {
   transform: scale(1.05);
 }
 
-/* Responsive adjustments for modals */
+
 @media (max-width: 768px) {
   .modal-overlay-custom {
     padding: 15px;
@@ -527,7 +562,7 @@ body > *:not(header) {
     overflow-wrap: anywhere;
   }
 
-  /* Only stack the modal action buttons, not every flex group inside it. */
+ 
   .modal-contenedor-interior > .d-flex:not(.modal-alerta-verde) {
     flex-direction: column !important;
     align-items: center !important;
