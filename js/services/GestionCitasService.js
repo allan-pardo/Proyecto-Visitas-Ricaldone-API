@@ -1,20 +1,20 @@
 const citas = [
   {
-    fechaHora: "14/5/2026, 11:25 A.M",
+    fechaHora: "14 de mayo de 2026, 11:25 A.M",
     estudiante: "David Ramírez",
     motivo: "Bajo rendimiento académico",
     observaciones: "",
     estado: "Pendiente"
   },
   {
-    fechaHora: "15/5/2026, 9:00 A.M",
+    fechaHora: "15 de mayo de 2026, 9:00 A.M",
     estudiante: "María López",
     motivo: "Reunión con docente",
     observaciones: "",
     estado: "Aprobado"
   },
   {
-    fechaHora: "16/5/2026, 10:30 A.M",
+    fechaHora: "16 de mayo de 2026, 10:30 A.M",
     estudiante: "Carlos Hernández",
     motivo: "Permiso de salida",
     observaciones: "",
