@@ -3,7 +3,7 @@ import {
 } from "../services/RevisionSolicitudService.js";
 
 const btnAceptarSolicitud = document.getElementById(
-    "btn-aceptar-solicitud"
+    "btnAceptarSolicitud"
 );
 
 const modalSolicitudAceptada = document.getElementById(
@@ -11,7 +11,7 @@ const modalSolicitudAceptada = document.getElementById(
 );
 
 const btnCerrarModal = document.getElementById(
-    "btn-cerrar-modal"
+    "btnCerrarModal"
 );
 
 if (btnAceptarSolicitud && modalSolicitudAceptada) {

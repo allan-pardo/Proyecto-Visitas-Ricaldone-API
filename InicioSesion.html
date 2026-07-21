@@ -12,10 +12,10 @@
 </head>
 
 <body class="bg-light d-flex justify-content-center align-items-center min-vh-100">
-    <div class="container">
+    <main class="container">
         <div class="row justify-content-center">
             <div class="col-lg-5 col-md-7 col-sm-10">
-                <div class="card shadow border-1">
+                <article class="card shadow border-1">
                     <div class="card-body p-5 text-center">
                         <h3 class="fw-bold mb-4">BIENVENIDO AL<br>CONTROL DE VISITAS - ITR</h3>
 
@@ -28,12 +28,18 @@
                             <div class="mb-3">
                                 <input type="email"
                                     class="form-control form-control-lg text-white border-0 py-3 custom-placeholder"
-                                    placeholder="Correo" id="loginCorreo" required style="background-color: #1F2937;">
+                                    placeholder="Correo institucional" id="loginCorreo" required
+                                    pattern="^[^@\s]+@ricaldone\.edu\.sv$"
+                                    title="Use un correo con el dominio @ricaldone.edu.sv"
+                                    autocomplete="email" style="background-color: #1F2937;">
                             </div>
                             <div class="mb-4">
                                 <input type="password"
                                     class="form-control form-control-lg text-white border-0 py-3 custom-placeholder"
-                                    placeholder="Contraseña" required style="background-color: #1F2937;">
+                                    placeholder="Contraseña (8 caracteres)" id="loginContrasena" required
+                                    minlength="8" maxlength="8" pattern=".{8}"
+                                    title="La contraseña debe tener exactamente 8 caracteres"
+                                    autocomplete="current-password" style="background-color: #1F2937;">
                             </div>
 
                             <button type="submit" class="btn btn-lg w-100 py-3 text-white rounded-3"
@@ -42,10 +48,10 @@
                             </button>
                         </form>
                     </div>
-                </div>
+                </article>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
    <script type="module" src="./js/controllers/InicioSesionController.js"></script>

@@ -225,6 +225,81 @@ body > *:not(header) {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* Acciones principales del inicio */
+.acciones-inicio {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.acciones-inicio .btn {
+  width: 220px;
+  min-height: 52px;
+  margin: 0;
+}
+
+/* Buscador y filtros del historial */
+.barra-historial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.barra-historial .buscador {
+  flex: 1 1 300px;
+  min-width: 220px;
+  max-width: 430px;
+}
+
+.filtros-historial {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.filtros-historial .btn-filtro {
+  min-width: 86px;
+}
+
+@media (max-width: 768px) {
+  .barra-historial {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .barra-historial .buscador {
+    flex-basis: auto;
+    max-width: none;
+    width: 100%;
+  }
+
+  .filtros-historial {
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .acciones-inicio {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .acciones-inicio .btn {
+    width: min(100%, 280px);
+  }
+
+  .filtros-historial .btn-filtro {
+    flex: 1 1 calc(50% - 8px);
+  }
+}
+
 /* Modal de Solicitud Aceptada con Éxito */
 .modal-overlay-custom {
   position: fixed;
@@ -239,6 +314,7 @@ body > *:not(header) {
   align-items: center;
   z-index: 2000;
   padding: 20px;
+  overflow-y: auto; /* Enable scrolling for taller content on small viewports */
 }
 
 .modal-overlay-custom.active {
@@ -254,6 +330,7 @@ body > *:not(header) {
   max-width: 800px;
   background-color: #ffffff;
   animation: modalBounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  margin: auto; /* Center modal vertically and horizontally, respecting scrolling behavior */
 }
 
 @keyframes modalBounceIn {
@@ -339,6 +416,139 @@ body > *:not(header) {
   background-color: #7da2d2;
   transform: scale(1.05);
 }
+
+/* Responsive adjustments for modals */
+@media (max-width: 768px) {
+  .modal-overlay-custom {
+    padding: 15px;
+  }
+  .modal-contenedor-exterior {
+    border: 8px solid #d9d9d9;
+    border-radius: 16px;
+    padding: 5px;
+  }
+  .modal-contenedor-interior {
+    padding: 25px 15px;
+    border-radius: 12px;
+  }
+  .modal-titulo {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  .modal-alerta-verde {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+  }
+  .modal-alerta-verde svg {
+    width: 52px;
+    height: 52px;
+  }
+  .modal-alerta-titulo {
+    font-size: 1.15rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  .modal-alerta-texto {
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+  }
+  .modal-alerta-info {
+    font-size: 0.95rem;
+  }
+  .modal-boton-volver {
+    padding: 8px 40px;
+    font-size: 1rem;
+  }
+  .modal-boton-citas {
+    padding: 8px 30px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal-overlay-custom {
+    padding: 12px;
+    align-items: center;
+  }
+
+  .modal-contenedor-exterior {
+    border: 5px solid #d9d9d9;
+    border-radius: 12px;
+    padding: 4px;
+    width: min(100%, 420px);
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+  }
+
+  .modal-contenedor-interior {
+    padding: 14px 10px;
+    border-radius: 9px;
+  }
+
+  .modal-titulo {
+    font-size: 1.15rem;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .modal-alerta-verde {
+    padding: 12px 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .modal-alerta-verde svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 6px !important;
+  }
+
+  .modal-alerta-titulo {
+    font-size: 0.95rem;
+    line-height: 1.25;
+    margin-top: 5px;
+    margin-bottom: 6px;
+  }
+
+  .modal-alerta-texto {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+
+  .modal-alerta-info {
+    font-size: 0.78rem;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Only stack the modal action buttons, not every flex group inside it. */
+  .modal-contenedor-interior > .d-flex:not(.modal-alerta-verde) {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: 100%;
+  }
+
+  .modal-alerta-verde .d-flex.flex-wrap {
+    column-gap: 12px !important;
+    row-gap: 3px !important;
+  }
+
+  .modal-contenedor-interior .btn {
+    width: min(100%, 220px) !important;
+    min-height: 36px;
+    padding: 7px 20px !important;
+    font-size: 0.9rem;
+    margin: 0 auto;
+  }
+}
+
 
 
 

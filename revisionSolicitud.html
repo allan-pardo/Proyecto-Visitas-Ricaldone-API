@@ -49,8 +49,8 @@
         </header>
 
         <main class="contenedor-principal">
-            <div class="contenedor-exterior">
-                <div class="contenedor-interior">
+            <section class="contenedor-exterior">
+                <article class="contenedor-interior">
 
                     <h5 class="text-center mb-5">Revisión de Detalles de Solicitud: Diego Rodrigo Membreño Ramos</h5>
 
@@ -82,11 +82,11 @@
                     <div class="d-flex justify-content-center flex-wrap gap-4 mt-5 mb-2">
                         <a href="posponer.html"
                             class="btn btn-posponer rounded-pill px-5 py-2 btn-warning fw-bold text-dark">Posponer</a>
-                        <a href="#" id="btn-aceptar-solicitud"
+                        <a href="#" id="btnAceptarSolicitud"
                             class="btn btn-aceptar rounded-pill px-5 py-2 btn-primary fw-bold text-dark">Aceptar</a>
                     </div>
-                </div>
-            </div>
+                </article>
+            </section>
         </main>
 
         <footer class="py-3 mt-auto text-white" style="background-color: #1C1B1B;">
@@ -121,14 +121,13 @@
             </div>
         </footer>
 
-        <!-- Modal de Solicitud Aceptada con Éxito -->
         <div id="modalSolicitudAceptada" class="modal-overlay-custom">
             <div class="modal-contenedor-exterior">
                 <div class="modal-contenedor-interior">
                     <h2 class="modal-titulo">Solicitud Aceptada Con Exito</h2>
 
                     <div class="modal-alerta-verde d-flex flex-column align-items-center justify-content-center">
-                        <!-- SVG Checkmark Icon -->
+                        
                         <svg width="68" height="68" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg"
                             class="mb-3">
                             <circle cx="256" cy="256" r="256" fill="white" />
@@ -150,7 +149,7 @@
                         </p>
                     </div>
 
-                    <button type="button" id="btn-cerrar-modal"
+                    <button type="button" id="btnCerrarModal"
                         class="btn modal-boton-volver rounded-pill">Volver</button>
                 </div>
             </div>
