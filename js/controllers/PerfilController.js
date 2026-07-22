@@ -1,5 +1,10 @@
+import {
+  cerrarSesion,
+  obtenerCorreoSesion
+} from "../services/PerfilService.js";
+
 document.addEventListener("DOMContentLoaded", function () {
-  const correoGuardado = sessionStorage.getItem("userCorreo");
+  const correoGuardado = obtenerCorreoSesion();
   const perfilCorreo = document.getElementById("perfilCorreo");
   const btnLogout = document.getElementById("btnLogout");
 
@@ -8,6 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   btnLogout?.addEventListener("click", function () {
-    sessionStorage.removeItem("userCorreo");
+    cerrarSesion();
   });
 });
