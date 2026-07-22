@@ -1,11 +1,14 @@
-import { iniciarSesion } from "../services/InicioSesionService.js";
+import {
+    iniciarSesion,
+    validarCorreoInstitucional
+} from "../services/InicioSesionService.js";
 
 const formInicioSesion = document.getElementById("loginForm");
 const correoInput = document.getElementById("loginCorreo");
 const contrasenaInput = document.getElementById("loginContrasena");
 
 correoInput?.addEventListener("input", () => {
-    const correoValido = /^[^@\s]+@ricaldone\.edu\.sv$/i.test(correoInput.value.trim());
+    const correoValido = validarCorreoInstitucional(correoInput.value);
     correoInput.setCustomValidity(
         correoInput.value && !correoValido
             ? "El correo debe terminar en @ricaldone.edu.sv"
@@ -30,11 +33,16 @@ if (formInicioSesion) {
             return;
         }
 
-        const resultado = iniciarSesion();
+        const correo = correoInput.value.trim().toLowerCase();
+        const resultado = iniciarSesion(correo);
 
         if (resultado.exito) {
+            sessionStorage.setItem("userCorreo", correo);
             alert(resultado.mensaje);
             window.location.href = resultado.redireccion;
+        } else {
+            correoInput.setCustomValidity(resultado.mensaje);
+            correoInput.reportValidity();
         }
     });
 }
