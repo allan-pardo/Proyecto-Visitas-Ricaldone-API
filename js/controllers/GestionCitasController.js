@@ -43,7 +43,6 @@ if (formCita) {
 }
 
 //Obtiene los valores ingresados en el folmulario
-
 function obtenerDatosFormulario() {
   return {
     nombre: document
