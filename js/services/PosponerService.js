@@ -10,32 +10,9 @@ export function obtenerFechaActual() {
 
 
 //Valida los datos de la propuesta.
+import { validarPropuesta } from "../validaciones/validaciones.js";
 
-export function validarPropuesta(fecha, hora) {
-    if (fecha === "" || hora === "") {
-        return {
-            valido: false,
-            mensaje: "Complete la fecha y la hora sugeridas."
-        };
-    }
-
-    const fechaSeleccionada = new Date(`${fecha}T00:00:00`);
-
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    if (fechaSeleccionada < hoy) {
-        return {
-            valido: false,
-            mensaje: "La fecha sugerida no puede estar en el pasado."
-        };
-    }
-
-    return {
-        valido: true,
-        mensaje: ""
-    };
-}
+export { validarPropuesta };
 
 export function formatearFecha(fecha) {
     if (!fecha) {

@@ -37,13 +37,32 @@ if (formCita) {
     mostrarConfirmacionCita(datosCita);
 
     formCita.reset();
+    contenedorOtroMotivo?.classList.add("d-none");
     configurarFechaMinima();
     mostrarCitas(obtenerCitas());
   });
 }
 
-//Obtiene los valores ingresados en el folmulario
+const motivoSelect = document.getElementById("motivoCita");
+const contenedorOtroMotivo = document.getElementById("contenedorOtroMotivo");
+const otroMotivoInput = document.getElementById("otroMotivo");
+
+motivoSelect?.addEventListener("change", function () {
+  if (this.value === "Otro") {
+    contenedorOtroMotivo?.classList.remove("d-none");
+    otroMotivoInput.setAttribute("required", "required");
+  } else {
+    contenedorOtroMotivo?.classList.add("d-none");
+    otroMotivoInput.removeAttribute("required");
+    otroMotivoInput.value = "";
+  }
+});
+
+//Obtiene los valores ingresados en el formulario
 function obtenerDatosFormulario() {
+  const motivoSeleccionado = motivoSelect.value;
+  const motivoFinal = motivoSeleccionado === "Otro" ? otroMotivoInput.value.trim() : motivoSeleccionado;
+
   return {
     nombre: document
       .getElementById("nombreEstudiante")
@@ -54,7 +73,7 @@ function obtenerDatosFormulario() {
 
     hora: document.getElementById("horaCita").value,
 
-    motivo: document.getElementById("motivoCita").value,
+    motivo: motivoFinal,
 
     observaciones: document
       .getElementById("observaciones")

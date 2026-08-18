@@ -1,6 +1,6 @@
-export function validarCorreoInstitucional(correo) {
-    return /^[^@\s]+@ricaldone\.edu\.sv$/i.test(correo.trim());
-}
+import { validarCorreoInstitucional } from "../validaciones/validaciones.js";
+
+export { validarCorreoInstitucional };
 
 export function iniciarSesion(correo) {
     if (!validarCorreoInstitucional(correo)) {

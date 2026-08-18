@@ -17,11 +17,7 @@ correoInput?.addEventListener("input", () => {
 });
 
 contrasenaInput?.addEventListener("input", () => {
-    contrasenaInput.setCustomValidity(
-        contrasenaInput.value.length !== 8
-            ? "La contraseña debe tener exactamente 8 caracteres"
-            : ""
-    );
+    contrasenaInput.setCustomValidity("");
 });
 
 if (formInicioSesion) {
@@ -38,7 +34,6 @@ if (formInicioSesion) {
 
         if (resultado.exito) {
             sessionStorage.setItem("userCorreo", correo);
-            alert(resultado.mensaje);
             window.location.href = resultado.redireccion;
         } else {
             correoInput.setCustomValidity(resultado.mensaje);

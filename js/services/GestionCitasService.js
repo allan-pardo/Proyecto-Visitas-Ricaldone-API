@@ -27,7 +27,7 @@ export function obtenerCitas() {
   return citas;
 }
 
-//Nios permite agragar nuevas citas
+// Nos permite agregar nuevas citas
 export function agregarCita(datosCita) {
   const fechaFormateada = formatearFechaEspanol(datosCita.fecha);
   const horaFormateada = formatearHoraAMPM(datosCita.hora);
@@ -58,33 +58,9 @@ export function filtrarCitasPorEstado(estado) {
 
 // Valida los datos enviados desde el formulario.
 
-export function validarDatosCita(datosCita) {
-  const { nombre, fecha, hora, motivo } = datosCita;
+import { validarDatosCita } from "../validaciones/validaciones.js";
 
-  if (
-    nombre === "" ||
-    fecha === "" ||
-    hora === "" ||
-    motivo === ""
-  ) {
-    return {
-      valido: false,
-      mensaje: "Complete todos los campos obligatorios."
-    };
-  }
-
-  if (fechaEsPasada(fecha)) {
-    return {
-      valido: false,
-      mensaje: "La fecha no puede ser en el pasado."
-    };
-  }
-
-  return {
-    valido: true,
-    mensaje: ""
-  };
-}
+export { validarDatosCita };
 
 //Se comprobara si la fecha es una anterior al ahora
 function fechaEsPasada(fecha) {
