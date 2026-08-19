@@ -50,21 +50,23 @@
     <main class="flex-grow-1 container">
         <h2 class="text-center my-5">Solicitudes de Reunión</h2>
 
-        <section class="table-responsive my-5">
-            <table class="table table-bordered table-secondary text-center align-middle w-auto mx-auto mb-0">
-          <thead>
+        <section class="tabla-solicitudes-contenedor my-5">
+            <div class="table-responsive">
+            <table class="table tabla-solicitudes align-middle mb-0">
+                <thead>
                     <tr>
-                        <th>Padre</th>
-                        <th>Estudiante</th>
-                        <th>Código</th>
-                        <th>Correo</th>
-                        <th>Acción</th>
+                        <th scope="col">Padre</th>
+                        <th scope="col">Estudiante</th>
+                        <th scope="col">Código</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col">Acción</th>
                     </tr>
                 </thead>
                 <tbody id="txtTablaSolicitudesBody">
                     <!-- Filas utilizadas directamente desde SolicitudesController.js -->
                 </tbody>
             </table>
+            </div>
         </section>
     </main>
 
