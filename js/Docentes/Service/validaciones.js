@@ -17,7 +17,7 @@ export function validarDatosCita(datosCita) {
 
 // Validar correo institucional
 export function validarCorreoInstitucional(correo) {
-    return /^[a-záéíóúñ._-]+@ricaldone\.edu\.sv$/i.test(correo.trim());
+    return /^[^@\s]+@ricaldone\.edu\.sv$/i.test(correo.trim());
 }
 
 // Validar propuesta al posponer una cita

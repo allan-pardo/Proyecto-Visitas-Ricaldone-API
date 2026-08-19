@@ -11,7 +11,7 @@ correoInput?.addEventListener("input", () => {
     const correoValido = validarCorreoInstitucional(correoInput.value);
     correoInput.setCustomValidity(
         correoInput.value && !correoValido
-            ? "Ingrese un correo institucional de colaborador sin números."
+            ? "El correo debe terminar en @ricaldone.edu.sv."
             : ""
     );
 });

@@ -7,40 +7,45 @@ export async function iniciarSesion(correo, contrasena) {
     if (!validarCorreoInstitucional(correo)) {
         return {
             exito: false,
-            mensaje: "Ingrese un correo institucional de colaborador sin números."
+            mensaje: "El correo debe terminar en @ricaldone.edu.sv."
         };
     }
 
     try {
-        const usuarios = await solicitarApi("/usuarios");
-        const usuario = usuarios.find(
+        const [usuarios, empleados] = await Promise.all([
+            solicitarApi("/usuarios"),
+            solicitarApi("/empleados")
+        ]);
+        const usuarioPorCorreo = usuarios.find(
             registro => registro.usuEmail?.trim().toLowerCase() === correo
         );
 
-        if (!usuario || usuario.usuPassword !== contrasena) {
-            return {
-                exito: false,
-                mensaje: "El correo o la contraseña son incorrectos."
-            };
-        }
-
-        if (usuario.usuRol?.toUpperCase() === "ESTUDIANTE") {
+        if (usuarioPorCorreo?.usuRol?.toUpperCase() === "ESTUDIANTE") {
             return {
                 exito: false,
                 mensaje: "No está permitido un estudiante en este sistema, retírese."
             };
         }
 
-        const empleados = await solicitarApi("/empleados");
-        const empleado = empleados.find(registro =>
-            Number(registro.usuarioEmpleado) === Number(usuario.idUsuario) ||
-            registro.empCorreo?.trim().toLowerCase() === correo
+        const empleado = empleados.find(
+            registro => registro.empCorreo?.trim().toLowerCase() === correo
         );
 
-        if (!empleado) {
+        if (!empleado || empleado.empClave !== contrasena) {
             return {
                 exito: false,
-                mensaje: "El usuario no tiene un empleado asociado."
+                mensaje: "El correo o la clave del empleado son incorrectos."
+            };
+        }
+
+        const usuario = usuarios.find(
+            registro => Number(registro.idUsuario) === Number(empleado.usuarioEmpleado)
+        );
+
+        if (!usuario) {
+            return {
+                exito: false,
+                mensaje: "El empleado no tiene un usuario asociado."
             };
         }
 
