@@ -1,0 +1,87 @@
+
+body{
+
+background-color: #FFFFFF;
+overflow-x: hidden;
+}
+
+.conoce-mas p,
+.conoce-mas h3,
+.conoce-mas h4,
+footer p {
+    overflow-wrap: anywhere;
+}
+
+.imagen-carousel {
+    max-width: 100%;
+}
+
+.hero-carousel-img {
+    height: 500px;
+    object-fit: cover;
+}
+
+.content-carousel {
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.content-carousel-img {
+    height: 400px;
+    object-fit: cover;
+}
+
+@media (max-width: 767.98px) {
+    .conoce-mas {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .imagen-carousel {
+        height: 260px !important;
+    }
+
+    .hero-carousel-img {
+        height: 320px;
+    }
+
+    .hero-carousel-title {
+        padding: 0 1rem;
+        font-size: clamp(1.75rem, 8vw, 2.25rem);
+    }
+
+    .content-carousel-img {
+        height: 240px;
+    }
+}
+
+@media (max-width: 399.98px) {
+    .hero-carousel-img {
+        height: 280px;
+    }
+
+    .content-carousel-img {
+        height: 210px;
+    }
+}
+
+.navbar-nav .nav-link{
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.navbar-nav .nav-link::after{
+    content: '';
+    position: absolute;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    background-color: #fff;
+    transition: width 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover::after{
+    width: 100%;
+
+}
