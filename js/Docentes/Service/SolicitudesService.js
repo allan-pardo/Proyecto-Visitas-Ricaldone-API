@@ -1,6 +1,6 @@
 import { solicitarApi } from "./ApiService.js";
 
-// Obtiene las solicitudes pendientes del empleado que inició sesión.
+// Obtiene las solicitudes pendientes y aceptadas del empleado que inició sesión.
 export async function obtenerSolicitudes(idEmpleado) {
   const [citas, relaciones, estudiantes, usuarios] = await Promise.all([
     solicitarApi("/citas-reuniones"),
@@ -11,7 +11,7 @@ export async function obtenerSolicitudes(idEmpleado) {
 
   return citas
     .filter(cita =>
-      cita.estado === "PENDIENTE" &&
+      ["PENDIENTE", "ACEPTADA"].includes(cita.estado) &&
       (!idEmpleado || Number(cita.idEmpleado) === Number(idEmpleado))
     )
     .map(cita => {
@@ -33,7 +33,8 @@ export async function obtenerSolicitudes(idEmpleado) {
         codigo: estudiante?.estCodigo || "No disponible",
         correo: usuario?.usuEmail || "No disponible",
         motivo: cita.motivo,
-        fechaReunion: cita.fechaReunion
+        fechaReunion: cita.fechaReunion,
+        estado: cita.estado
       };
     });
 }

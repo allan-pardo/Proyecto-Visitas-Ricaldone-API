@@ -206,6 +206,26 @@ body > *:not(header) {
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08); 
 }
 
+.solicitudes-navegacion {
+    width: min(100%, 560px);
+}
+
+#tabsSolicitudes {
+    background-color: #CDD2D7;
+}
+
+#tabsSolicitudes .nav-link {
+    color: #1C1B1B !important;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+#tabsSolicitudes .nav-link.active {
+    background-color: #FFFFFF !important;
+    color: #1C1B1B !important;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
+}
+
 .custom-placeholder::placeholder {
     color: #9CA3AF !important;
     opacity: 1;

@@ -1,6 +1,7 @@
 import { obtenerSolicitudes } from "../Service/SolicitudesService.js";
 
-const tablaSolicitudesBody = document.getElementById("txtTablaSolicitudesBody");
+const tablaSolicitudesPendientesBody = document.getElementById("txtTablaSolicitudesPendientesBody");
+const tablaSolicitudesAceptadasBody = document.getElementById("txtTablaSolicitudesAceptadasBody");
 const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -11,7 +12,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const solicitudes = await obtenerSolicitudes(idEmpleadoSesion);
-    mostrarSolicitudes(solicitudes);
+    const solicitudesPendientes = solicitudes.filter(solicitud => solicitud.estado === "PENDIENTE");
+    const solicitudesAceptadas = solicitudes.filter(solicitud => solicitud.estado === "ACEPTADA");
+
+    mostrarSolicitudes(solicitudesPendientes);
+    mostrarSolicitudesAceptadas(solicitudesAceptadas);
   } catch (error) {
     mostrarError(error.message);
   }
@@ -19,12 +24,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Renderiza dinámicamente las solicitudes dentro de la tabla HTML.
 function mostrarSolicitudes(listaSolicitudes) {
-  if (!tablaSolicitudesBody) return;
+  if (!tablaSolicitudesPendientesBody) return;
 
-  tablaSolicitudesBody.innerHTML = "";
+  tablaSolicitudesPendientesBody.innerHTML = "";
 
   if (listaSolicitudes.length === 0) {
-    tablaSolicitudesBody.innerHTML = `
+    tablaSolicitudesPendientesBody.innerHTML = `
       <tr>
         <td colspan="5" class="text-center py-4">No hay solicitudes pendientes.</td>
       </tr>
@@ -33,8 +38,8 @@ function mostrarSolicitudes(listaSolicitudes) {
   }
 
   listaSolicitudes.forEach(solicitud => {
-    tablaSolicitudesBody.innerHTML += `
-      <tr>
+    tablaSolicitudesPendientesBody.innerHTML += `
+      <tr data-id-cita="${solicitud.id}">
         <td>${solicitud.padre}</td>
         <td>${solicitud.estudiante}</td>
         <td>${solicitud.codigo}</td>
@@ -45,12 +50,41 @@ function mostrarSolicitudes(listaSolicitudes) {
   });
 }
 
-function mostrarError(mensaje) {
-  if (!tablaSolicitudesBody) return;
+// Renderiza las solicitudes que ya fueron aceptadas dentro de su propia tabla.
+function mostrarSolicitudesAceptadas(listaSolicitudes) {
+  if (!tablaSolicitudesAceptadasBody) return;
 
-  tablaSolicitudesBody.innerHTML = `
+  tablaSolicitudesAceptadasBody.innerHTML = "";
+
+  if (listaSolicitudes.length === 0) {
+    tablaSolicitudesAceptadasBody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-4">No hay solicitudes aceptadas.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  listaSolicitudes.forEach(solicitud => {
+    tablaSolicitudesAceptadasBody.innerHTML += `
+      <tr data-id-cita="${solicitud.id}">
+        <td>${solicitud.padre}</td>
+        <td>${solicitud.estudiante}</td>
+        <td>${solicitud.codigo}</td>
+        <td>${solicitud.correo}</td>
+        <td><span class="badge rounded-pill text-bg-success px-3 py-2">Aceptada</span></td>
+      </tr>
+    `;
+  });
+}
+
+function mostrarError(mensaje) {
+  const filaError = `
     <tr>
       <td colspan="5" class="text-center text-danger py-4">${mensaje}</td>
     </tr>
   `;
+
+  if (tablaSolicitudesPendientesBody) tablaSolicitudesPendientesBody.innerHTML = filaError;
+  if (tablaSolicitudesAceptadasBody) tablaSolicitudesAceptadasBody.innerHTML = filaError;
 }
