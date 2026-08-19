@@ -176,9 +176,11 @@
                         <form id="formCita">
 
                             <div class="mb-3">
-                                <label class="form-label">Nombre del Estudiante <span
+                                <label class="form-label" for="idEstudianteEncargado">Estudiante y encargado <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control rounded-pill" id="nombreEstudiante" required>
+                                <select class="form-select rounded-pill" id="idEstudianteEncargado" required>
+                                    <option value="">Cargando estudiantes...</option>
+                                </select>
                             </div>
 
                             <div class="row mb-3">
@@ -311,6 +313,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
-    <script type="module" src="../js/controllers/GestionCitasController.js"></script>
+    <script type="module" src="../js/Docentes/Controller/GestionCitasController.js"></script>
 </body>
 </html>

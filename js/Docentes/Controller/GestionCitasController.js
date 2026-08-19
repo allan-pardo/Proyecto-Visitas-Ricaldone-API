@@ -1,6 +1,12 @@
 import {
-  obtenerCitas, agregarCita, filtrarCitasPorEstado, validarDatosCita, formatearFechaEspanol, formatearHoraAMPM} 
-  from "../services/GestionCitasService.js";
+  obtenerCitas,
+  obtenerEstudiantesEncargados,
+  agregarCita,
+  filtrarCitasPorEstado,
+  validarDatosCita,
+  formatearFechaEspanol,
+  formatearHoraAMPM
+} from "../Service/GestionCitasService.js";
 
 const formCita = document.getElementById("formCita");
 const mensajeVacio = document.getElementById("mensajeVacio");
@@ -8,20 +14,59 @@ const tablaHistorial = document.getElementById("contenedorTablaCitas");
 const cuerpoTablaCitas = document.getElementById("cuerpoTablaCitas");
 const filtros = document.querySelectorAll('input[name="filtro"]');
 const fechaInput = document.getElementById("fechaCita");
+const estudianteEncargadoSelect = document.getElementById("idEstudianteEncargado");
+const motivoSelect = document.getElementById("motivoCita");
+const contenedorOtroMotivo = document.getElementById("contenedorOtroMotivo");
+const otroMotivoInput = document.getElementById("otroMotivo");
 
 const modalCita = document.getElementById("modalCitaAgendada");
-const btnCerrarModalCitas = document.getElementById(
-  "btn-cerrar-modal-citas"
-);
+const btnCerrarModalCitas = document.getElementById("btn-cerrar-modal-citas");
 const btnVerCitas = document.getElementById("btn-ver-citas");
+const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
 
-//Configuracion inicial
+// Configuración inicial.
 configurarFechaMinima();
-mostrarCitas(obtenerCitas());
+cargarDatosIniciales();
 
-//Registramos las citas
+async function cargarDatosIniciales() {
+  if (!idEmpleadoSesion) {
+    window.location.replace("InicioSesion.html");
+    return;
+  }
+
+  try {
+    const [relaciones, listaCitas] = await Promise.all([
+      obtenerEstudiantesEncargados(),
+      obtenerCitas(idEmpleadoSesion)
+    ]);
+
+    cargarOpcionesEstudiantes(relaciones);
+    mostrarCitas(listaCitas);
+  } catch (error) {
+    alert(error.message);
+    mostrarCitas([]);
+  }
+}
+
+function cargarOpcionesEstudiantes(relaciones) {
+  if (!estudianteEncargadoSelect) {
+    return;
+  }
+
+  estudianteEncargadoSelect.innerHTML = '<option value="">Seleccione estudiante</option>';
+
+  relaciones.forEach(relacion => {
+    const opcion = document.createElement("option");
+    opcion.value = relacion.idEstudianteEncargado;
+    opcion.textContent = `${relacion.nombreEstudiante} — ${relacion.nombreEncargado}`;
+    opcion.dataset.nombreEstudiante = relacion.nombreEstudiante;
+    estudianteEncargadoSelect.appendChild(opcion);
+  });
+}
+
+// Registramos las citas.
 if (formCita) {
-  formCita.addEventListener("submit", function (evento) {
+  formCita.addEventListener("submit", async function (evento) {
     evento.preventDefault();
 
     const datosCita = obtenerDatosFormulario();
@@ -32,20 +77,24 @@ if (formCita) {
       return;
     }
 
-    agregarCita(datosCita);
+    const botonRegistrar = formCita.querySelector('button[type="submit"]');
+    botonRegistrar.disabled = true;
 
-    mostrarConfirmacionCita(datosCita);
+    try {
+      await agregarCita(datosCita, idEmpleadoSesion);
+      mostrarConfirmacionCita(datosCita);
 
-    formCita.reset();
-    contenedorOtroMotivo?.classList.add("d-none");
-    configurarFechaMinima();
-    mostrarCitas(obtenerCitas());
+      formCita.reset();
+      contenedorOtroMotivo?.classList.add("d-none");
+      configurarFechaMinima();
+      mostrarCitas(await obtenerCitas(idEmpleadoSesion));
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      botonRegistrar.disabled = false;
+    }
   });
 }
-
-const motivoSelect = document.getElementById("motivoCita");
-const contenedorOtroMotivo = document.getElementById("contenedorOtroMotivo");
-const otroMotivoInput = document.getElementById("otroMotivo");
 
 motivoSelect?.addEventListener("change", function () {
   if (this.value === "Otro") {
@@ -58,32 +107,23 @@ motivoSelect?.addEventListener("change", function () {
   }
 });
 
-//Obtiene los valores ingresados en el formulario
+// Obtiene los valores ingresados en el formulario.
 function obtenerDatosFormulario() {
   const motivoSeleccionado = motivoSelect.value;
   const motivoFinal = motivoSeleccionado === "Otro" ? otroMotivoInput.value.trim() : motivoSeleccionado;
+  const opcionEstudiante = estudianteEncargadoSelect.options[estudianteEncargadoSelect.selectedIndex];
 
   return {
-    nombre: document
-      .getElementById("nombreEstudiante")
-      .value
-      .trim(),
-
+    idEstudianteEncargado: estudianteEncargadoSelect.value,
+    nombre: opcionEstudiante?.dataset.nombreEstudiante || "",
     fecha: document.getElementById("fechaCita").value,
-
     hora: document.getElementById("horaCita").value,
-
     motivo: motivoFinal,
-
-    observaciones: document
-      .getElementById("observaciones")
-      .value
-      .trim()
+    observaciones: document.getElementById("observaciones").value.trim()
   };
 }
 
-//Coloca la fecha actual como fecha mínima permitida.
-
+// Coloca la fecha actual como fecha mínima permitida.
 function configurarFechaMinima() {
   if (!fechaInput) {
     return;
@@ -97,16 +137,10 @@ function configurarFechaMinima() {
   fechaInput.min = `${anio}-${mes}-${dia}`;
 }
 
-//Ayuda a rellenar y abrir el modal de confirmacion
+// Ayuda a rellenar y abrir el modal de confirmación.
 function mostrarConfirmacionCita(datosCita) {
-  const modalNombre = document.getElementById(
-    "modalNombreEstudiante"
-  );
-
-  const modalDetalle = document.getElementById(
-    "modalDetalleFechaHora"
-  );
-
+  const modalNombre = document.getElementById("modalNombreEstudiante");
+  const modalDetalle = document.getElementById("modalDetalleFechaHora");
   const fechaFormateada = formatearFechaEspanol(datosCita.fecha);
   const horaFormateada = formatearHoraAMPM(datosCita.hora);
 
@@ -125,24 +159,19 @@ function mostrarConfirmacionCita(datosCita) {
   }
 }
 
-//Cierra el modal de confirmacion.
-
+// Cierra el modal de confirmación.
 if (btnCerrarModalCitas && modalCita) {
   btnCerrarModalCitas.addEventListener("click", function () {
     modalCita.classList.remove("active");
   });
 }
 
-
-//Cierra el modal y abre la pestaña Historial.
-
+// Cierra el modal y abre la pestaña Historial.
 if (btnVerCitas && modalCita) {
   btnVerCitas.addEventListener("click", function () {
     modalCita.classList.remove("active");
 
-    const botonHistorial = document.querySelector(
-      '[data-bs-target="#historialCitas"]'
-    );
+    const botonHistorial = document.querySelector('[data-bs-target="#historialCitas"]');
 
     if (botonHistorial) {
       const tabHistorial = new bootstrap.Tab(botonHistorial);
@@ -151,8 +180,7 @@ if (btnVerCitas && modalCita) {
   });
 }
 
-//nos ayuda a filtrar las citas pos su estado
-
+// Nos ayuda a filtrar las citas por su estado.
 filtros.forEach(filtro => {
   filtro.addEventListener("change", function () {
     const citasFiltradas = filtrarCitasPorEstado(this.value);
@@ -160,8 +188,7 @@ filtros.forEach(filtro => {
   });
 });
 
-//Mostrara las citas en el historial de citas
-
+// Mostrará las citas en el historial de citas.
 function mostrarCitas(listaCitas) {
   cuerpoTablaCitas.innerHTML = "";
 

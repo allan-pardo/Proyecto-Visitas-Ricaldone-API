@@ -1,7 +1,7 @@
 // Validar datos al agendar una cita
 export function validarDatosCita(datosCita) {
-    if (!datosCita.nombre) {
-        return { valido: false, mensaje: "El nombre del estudiante es obligatorio." };
+    if (!datosCita.idEstudianteEncargado) {
+        return { valido: false, mensaje: "Debe seleccionar al estudiante y su encargado." };
     }
     if (!datosCita.fecha) {
         return { valido: false, mensaje: "Debe seleccionar una fecha para la cita." };
@@ -17,7 +17,7 @@ export function validarDatosCita(datosCita) {
 
 // Validar correo institucional
 export function validarCorreoInstitucional(correo) {
-    return /^[^@\s]+@ricaldone\.edu\.sv$/i.test(correo.trim());
+    return /^[a-záéíóúñ._-]+@ricaldone\.edu\.sv$/i.test(correo.trim());
 }
 
 // Validar propuesta al posponer una cita

@@ -1,3 +1,8 @@
+import { solicitarApi } from "./ApiService.js";
+import { validarPropuesta } from "./validaciones.js";
+
+export { validarPropuesta };
+
 export function obtenerFechaActual() {
     const hoy = new Date();
 
@@ -8,11 +13,6 @@ export function obtenerFechaActual() {
     return `${anio}-${mes}-${dia}`;
 }
 
-
-//Valida los datos de la propuesta.
-import { validarPropuesta } from "../validaciones/validaciones.js";
-
-export { validarPropuesta };
 
 export function formatearFecha(fecha) {
     if (!fecha) {
@@ -59,4 +59,22 @@ export function crearPropuesta(fecha, hora) {
         fecha: formatearFecha(fecha),
         hora: formatearHora(hora)
     };
+}
+
+export async function guardarPropuesta(idCita, fecha, hora, justificacion) {
+    const cita = await solicitarApi(`/citas-reuniones/${idCita}`);
+    const observaciones = [
+        cita.observaciones,
+        justificacion ? `Reprogramación: ${justificacion}` : ""
+    ].filter(Boolean).join(" | ");
+
+    return solicitarApi(`/citas-reuniones/${idCita}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            ...cita,
+            estado: "PENDIENTE",
+            observaciones,
+            fechaReunion: `${fecha}T${hora}:00`
+        })
+    });
 }

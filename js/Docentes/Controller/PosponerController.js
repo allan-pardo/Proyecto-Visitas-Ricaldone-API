@@ -1,8 +1,9 @@
 import {
     obtenerFechaActual,
     validarPropuesta,
-    crearPropuesta
-} from "../services/PosponerService.js";
+    crearPropuesta,
+    guardarPropuesta
+} from "../Service/PosponerService.js";
 
 const fechaSugeridaInput = document.getElementById("fechaSugerida");
 const formPosponer = document.getElementById("formPosponer");
@@ -10,6 +11,13 @@ const modalPropuestaEnviada = document.getElementById("modalPropuestaEnviada");
 const btnCerrarModalPropuesta = document.getElementById("btn-cerrar-modal-propuesta");
 const modalPropuestaFecha = document.getElementById("modalPropuestaFecha");
 const modalPropuestaHora = document.getElementById("modalPropuestaHora");
+const justificacionInput = document.getElementById("justificacionPosponer");
+const parametros = new URLSearchParams(window.location.search);
+const idCita = Number(parametros.get("id"));
+
+if (!sessionStorage.getItem("empleadoId")) {
+    window.location.replace("InicioSesion.html");
+}
 
 
 //Impide seleccionar una fecha anterior al día actual.
@@ -22,11 +30,17 @@ if (fechaSugeridaInput) {
 //Procesa el formulario para posponer la solicitud.
 
 if (formPosponer && modalPropuestaEnviada) {
-    formPosponer.addEventListener("submit", function(e) {
+    formPosponer.addEventListener("submit", async function(e) {
         e.preventDefault();
+
+        if (!idCita) {
+            alert("No se recibió el ID de la cita que desea posponer.");
+            return;
+        }
 
         const fecha = document.getElementById("fechaSugerida").value;
         const hora = document.getElementById("horaSugerida").value;
+        const justificacion = justificacionInput.value.trim();
         const resultadoValidacion = validarPropuesta(fecha,hora);
 
         if (!resultadoValidacion.valido) {
@@ -35,6 +49,13 @@ if (formPosponer && modalPropuestaEnviada) {
         }
 
         const propuesta = crearPropuesta(fecha, hora);
+
+        try {
+            await guardarPropuesta(idCita, fecha, hora, justificacion);
+        } catch (error) {
+            alert(error.message);
+            return;
+        }
 
         if (modalPropuestaFecha) {
             modalPropuestaFecha.textContent = propuesta.fecha;
