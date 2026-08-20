@@ -22,6 +22,8 @@ const modalCita = document.getElementById("modalCitaAgendada");
 const btnCerrarModalCitas = document.getElementById("btn-cerrar-modal-citas");
 const btnVerCitas = document.getElementById("btn-ver-citas");
 const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
+const INTERVALO_ACTUALIZACION = 15000;
+let actualizacionEnCurso = false;
 
 // Configuración inicial.
 configurarFechaMinima();
@@ -41,6 +43,7 @@ async function cargarDatosIniciales() {
 
     cargarOpcionesEstudiantes(relaciones);
     mostrarCitas(listaCitas);
+    configurarActualizacionAutomatica();
   } catch (error) {
     alert(error.message);
     mostrarCitas([]);
@@ -86,7 +89,7 @@ if (formCita) {
 
       formCita.reset();
       configurarFechaMinima();
-      mostrarCitas(await obtenerCitas(idEmpleadoSesion));
+      await actualizarHistorial();
     } catch (error) {
       alert(error.message);
     } finally {
@@ -174,6 +177,45 @@ filtros.forEach(filtro => {
   });
 });
 
+// Mantiene el historial sincronizado cuando el encargado responde desde mobile.
+async function actualizarHistorial(mostrarError = true) {
+  if (actualizacionEnCurso || !idEmpleadoSesion) {
+    return;
+  }
+
+  actualizacionEnCurso = true;
+
+  try {
+    await obtenerCitas(idEmpleadoSesion);
+    const filtroActivo = document.querySelector('input[name="filtro"]:checked')?.value || "Todos";
+    mostrarCitas(filtrarCitasPorEstado(filtroActivo));
+  } catch (error) {
+    if (mostrarError) {
+      alert(error.message);
+    } else {
+      console.error("No fue posible actualizar el historial de citas.", error);
+    }
+  } finally {
+    actualizacionEnCurso = false;
+  }
+}
+
+function configurarActualizacionAutomatica() {
+  window.addEventListener("focus", () => actualizarHistorial(false));
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      actualizarHistorial(false);
+    }
+  });
+
+  window.setInterval(() => {
+    if (!document.hidden) {
+      actualizarHistorial(false);
+    }
+  }, INTERVALO_ACTUALIZACION);
+}
+
 // Mostrará las citas en el historial de citas.
 function mostrarCitas(listaCitas) {
   cuerpoTablaCitas.innerHTML = "";
@@ -190,15 +232,24 @@ function mostrarCitas(listaCitas) {
   listaCitas.forEach(cita => {
     cuerpoTablaCitas.innerHTML += `
       <tr>
-        <td>${cita.fechaHora}</td>
-        <td>${cita.estudiante}</td>
-        <td>${cita.asunto}</td>
+        <td>${escaparHtml(cita.fechaHora)}</td>
+        <td>${escaparHtml(cita.estudiante)}</td>
+        <td>${escaparHtml(cita.asunto)}</td>
         <td>
-          <span class="estado-cita estado-${cita.estado.toLowerCase()}">
-            ${cita.estado}
+          <span class="estado-cita estado-${escaparHtml(cita.estado.toLowerCase())}">
+            ${escaparHtml(cita.estado)}
           </span>
         </td>
       </tr>
     `;
   });
+}
+
+function escaparHtml(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }

@@ -1,5 +1,7 @@
 import { solicitarApi } from "./ApiService.js";
 
+const MARCADOR_SOLICITUD_PADRE = "[SOLICITUD_PADRE]";
+
 // Obtiene las solicitudes pendientes y aceptadas del empleado que inició sesión.
 export async function obtenerSolicitudes(idEmpleado) {
   const [citas, relaciones, estudiantes, usuarios] = await Promise.all([
@@ -12,6 +14,7 @@ export async function obtenerSolicitudes(idEmpleado) {
   return citas
     .filter(cita =>
       ["PENDIENTE", "ACEPTADA"].includes(cita.estado) &&
+      cita.observaciones?.startsWith(MARCADOR_SOLICITUD_PADRE) &&
       (!idEmpleado || Number(cita.idEmpleado) === Number(idEmpleado))
     )
     .map(cita => {
@@ -33,6 +36,9 @@ export async function obtenerSolicitudes(idEmpleado) {
         codigo: estudiante?.estCodigo || "No disponible",
         correo: usuario?.usuEmail || "No disponible",
         motivo: cita.motivo,
+        descripcion: cita.observaciones
+          ?.slice(MARCADOR_SOLICITUD_PADRE.length)
+          .trim() || cita.motivo,
         fechaReunion: cita.fechaReunion,
         estado: cita.estado
       };

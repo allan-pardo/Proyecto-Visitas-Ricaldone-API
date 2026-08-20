@@ -25,13 +25,16 @@ export async function solicitarApi(ruta, opciones = {}) {
   }
 
   const tipoContenido = respuesta.headers.get("content-type") || "";
-  const contenido = tipoContenido.includes("application/json")
+  const contenido = tipoContenido.includes("json")
     ? await respuesta.json()
     : null;
 
   if (!respuesta.ok) {
     throw new Error(
-      contenido?.message || contenido?.error || `La API respondió con el estado ${respuesta.status}.`
+      contenido?.message ||
+      contenido?.detail ||
+      contenido?.error ||
+      `La API respondió con el estado ${respuesta.status}.`
     );
   }
 

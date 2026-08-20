@@ -7,6 +7,7 @@ let estudiantesEncargados = [];
 const nombresEstado = {
   PENDIENTE: "Pendiente",
   ACEPTADA: "Aprobado",
+  POSPUESTA: "Pospuesta",
   RECHAZADA: "Rechazado",
   CANCELADA: "Cancelado",
   FINALIZADA: "Finalizado"
@@ -16,15 +17,15 @@ export { validarDatosCita };
 
 // Obtendrá desde la API las citas asociadas al empleado que inició sesión.
 export async function obtenerCitas(idEmpleado) {
-  const [citasApi, relacionesApi] = await Promise.all([
-    solicitarApi("/citas-reuniones"),
-    solicitarApi("/estudiante-encargados")
-  ]);
+  if (!idEmpleado) {
+    throw new Error("No se encontró el empleado de la sesión.");
+  }
 
-  estudiantesEncargados = Array.isArray(relacionesApi) ? relacionesApi : [];
+  const citasApi = await solicitarApi(
+    `/citas-reuniones/por-empleado/${encodeURIComponent(idEmpleado)}`
+  );
 
   citas = (Array.isArray(citasApi) ? citasApi : [])
-    .filter(cita => !idEmpleado || Number(cita.idEmpleado) === Number(idEmpleado))
     .map(convertirCitaParaVista);
 
   return citas;
@@ -80,8 +81,8 @@ function convertirCitaParaVista(cita) {
     idEstudianteEncargado: cita.idEstudianteEncargado,
     fechaReunion: cita.fechaReunion,
     fechaHora: `${formatearFechaEspanol(fechaHora.fecha)}, ${formatearHoraAMPM(fechaHora.hora)}`,
-    estudiante: relacion?.nombreEstudiante || "Estudiante no disponible",
-    encargado: relacion?.nombreEncargado || "Encargado no disponible",
+    estudiante: cita.nombreEstudiante || relacion?.nombreEstudiante || "Estudiante no disponible",
+    encargado: cita.nombreEncargado || relacion?.nombreEncargado || "Encargado no disponible",
     asunto: cita.motivo,
     descripcion: cita.observaciones || "",
     estado: nombresEstado[cita.estado] || cita.estado
