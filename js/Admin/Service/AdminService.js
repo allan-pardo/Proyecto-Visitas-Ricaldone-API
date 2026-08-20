@@ -1,133 +1,196 @@
-const CLAVE_ALMACENAMIENTO = "empleadosAdministrados";
+import { solicitarApi } from "../../Docentes/Service/ApiService.js";
 
-const empleadosIniciales = [
-  {
-    id: "1",
-    nombre: "Carlos",
-    apellido: "García López",
-    clave: "cgarcia",
-    correo: "carlos.garcia@ricaldone.edu.sv",
-    rol: "Administrador"
-  },
-  {
-    id: "2",
-    nombre: "María",
-    apellido: "Fernández Ruiz",
-    clave: "mfernandez",
-    correo: "maria.fernandez@ricaldone.edu.sv",
-    rol: "Secretaría"
-  },
-  {
-    id: "3",
-    nombre: "José",
-    apellido: "Martínez Pérez",
-    clave: "jmartinez",
-    correo: "jose.martinez@ricaldone.edu.sv",
-    rol: "Docente"
-  }
+const ROLES_PERMITIDOS = [
+  "ADMINISTRADOR",
+  "COORDINADOR ACADÉMICO",
+  "COORDINADOR TÉCNICO",
+  "DOCENTE TÉCNICO",
+  "DOCENTE ACADÉMICO",
+  "RECEPCIONISTA"
 ];
 
-function guardarEmpleados(empleados) {
-  localStorage.setItem(CLAVE_ALMACENAMIENTO, JSON.stringify(empleados));
+function convertirEmpleado(empleado) {
+  return {
+    id: String(empleado.idEmpleado),
+    nombre: empleado.empNombre,
+    apellido: empleado.empApellido,
+    clave: empleado.empClave,
+    correo: empleado.empCorreo,
+    rol: empleado.empRol,
+    usuarioId: empleado.usuarioEmpleado
+  };
 }
 
-export function obtenerEmpleados() {
-  const empleadosGuardados = localStorage.getItem(CLAVE_ALMACENAMIENTO);
-
-  if (!empleadosGuardados) {
-    guardarEmpleados(empleadosIniciales);
-    return [...empleadosIniciales];
-  }
-
-  try {
-    return JSON.parse(empleadosGuardados);
-  } catch (error) {
-    guardarEmpleados(empleadosIniciales);
-    return [...empleadosIniciales];
-  }
-}
-
-export function obtenerEmpleadoPorId(id) {
-  return obtenerEmpleados().find(empleado => empleado.id === id);
-}
-
-export function guardarEmpleado(datosEmpleado) {
-  const empleados = obtenerEmpleados();
-  const idActual = datosEmpleado.id;
-  const correoNormalizado = datosEmpleado.correo.trim().toLowerCase();
-  const claveNormalizada = datosEmpleado.clave.trim().toLowerCase();
-
-  const correoRepetido = empleados.some(empleado =>
-    empleado.correo.toLowerCase() === correoNormalizado && empleado.id !== idActual
-  );
-
-  if (correoRepetido) {
-    return {
-      exito: false,
-      mensaje: "Ya existe un empleado registrado con ese correo."
-    };
-  }
-
-  const claveRepetida = empleados.some(empleado =>
-    empleado.clave.toLowerCase() === claveNormalizada && empleado.id !== idActual
-  );
-
-  if (claveRepetida) {
-    return {
-      exito: false,
-      mensaje: "Ya existe un empleado registrado con esa clave."
-    };
-  }
-
-  const empleado = {
-    id: idActual || Date.now().toString(),
+function prepararDatos(datosEmpleado) {
+  return {
+    id: datosEmpleado.id ? Number(datosEmpleado.id) : null,
     nombre: datosEmpleado.nombre.trim(),
     apellido: datosEmpleado.apellido.trim(),
     clave: datosEmpleado.clave.trim(),
-    correo: correoNormalizado,
-    rol: datosEmpleado.rol
-  };
-
-  if (idActual) {
-    const indiceEmpleado = empleados.findIndex(item => item.id === idActual);
-
-    if (indiceEmpleado === -1) {
-      return {
-        exito: false,
-        mensaje: "No se encontró el empleado que desea actualizar."
-      };
-    }
-
-    empleados[indiceEmpleado] = empleado;
-  } else {
-    empleados.push(empleado);
-  }
-
-  guardarEmpleados(empleados);
-
-  return {
-    exito: true,
-    mensaje: idActual
-      ? "Empleado actualizado correctamente."
-      : "Empleado registrado correctamente."
+    correo: datosEmpleado.correo.trim().toLowerCase(),
+    rol: datosEmpleado.rol.trim().toUpperCase()
   };
 }
 
-export function eliminarEmpleado(id) {
-  const empleados = obtenerEmpleados();
-  const empleadosActualizados = empleados.filter(empleado => empleado.id !== id);
+function crearDatosUsuario(datosEmpleado) {
+  return {
+    usuEmail: datosEmpleado.correo,
+    usuPassword: datosEmpleado.clave,
+    usuRol: "COLABORADOR"
+  };
+}
 
-  if (empleadosActualizados.length === empleados.length) {
+function crearDatosEmpleado(datosEmpleado, usuarioId) {
+  return {
+    empNombre: datosEmpleado.nombre,
+    empApellido: datosEmpleado.apellido,
+    empClave: datosEmpleado.clave,
+    empCorreo: datosEmpleado.correo,
+    empRol: datosEmpleado.rol,
+    usuarioEmpleado: Number(usuarioId)
+  };
+}
+
+async function validarCorreoDisponible(correo, idActual) {
+  const empleados = await solicitarApi("/empleados");
+
+  return !empleados.some(empleado =>
+    empleado.empCorreo?.trim().toLowerCase() === correo &&
+    Number(empleado.idEmpleado) !== Number(idActual)
+  );
+}
+
+export async function obtenerEmpleados() {
+  const empleados = await solicitarApi("/empleados");
+  return empleados.map(convertirEmpleado);
+}
+
+export async function obtenerEmpleadoPorId(id) {
+  const empleado = await solicitarApi(`/empleados/${id}`);
+  return convertirEmpleado(empleado);
+}
+
+export async function guardarEmpleado(datosFormulario) {
+  const datosEmpleado = prepararDatos(datosFormulario);
+
+  if (!ROLES_PERMITIDOS.includes(datosEmpleado.rol)) {
     return {
       exito: false,
-      mensaje: "No se encontró el empleado que desea eliminar."
+      mensaje: "Seleccione un rol permitido por el sistema."
     };
   }
 
-  guardarEmpleados(empleadosActualizados);
+  try {
+    const correoDisponible = await validarCorreoDisponible(datosEmpleado.correo, datosEmpleado.id);
 
-  return {
-    exito: true,
-    mensaje: "Empleado eliminado correctamente."
-  };
+    if (!correoDisponible) {
+      return {
+        exito: false,
+        mensaje: "Ya existe un empleado registrado con ese correo."
+      };
+    }
+
+    if (datosEmpleado.id) {
+      const empleadoAnterior = await solicitarApi(`/empleados/${datosEmpleado.id}`);
+      const usuarioAnterior = await solicitarApi(`/usuarios/${empleadoAnterior.usuarioEmpleado}`);
+
+      await solicitarApi(`/usuarios/${empleadoAnterior.usuarioEmpleado}`, {
+        method: "PUT",
+        body: JSON.stringify(crearDatosUsuario(datosEmpleado))
+      });
+
+      try {
+        await solicitarApi(`/empleados/${datosEmpleado.id}`, {
+          method: "PUT",
+          body: JSON.stringify(crearDatosEmpleado(datosEmpleado, empleadoAnterior.usuarioEmpleado))
+        });
+      } catch (error) {
+        try {
+          await solicitarApi(`/usuarios/${empleadoAnterior.usuarioEmpleado}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              usuEmail: usuarioAnterior.usuEmail,
+              usuPassword: usuarioAnterior.usuPassword,
+              usuRol: usuarioAnterior.usuRol
+            })
+          });
+        } catch (errorRestauracion) {
+          console.error("No se pudo restaurar el usuario asociado.", errorRestauracion);
+        }
+
+        throw error;
+      }
+
+      return {
+        exito: true,
+        mensaje: "Empleado actualizado correctamente."
+      };
+    }
+
+    const usuarioCreado = await solicitarApi("/usuarios", {
+      method: "POST",
+      body: JSON.stringify(crearDatosUsuario(datosEmpleado))
+    });
+
+    try {
+      await solicitarApi("/empleados", {
+        method: "POST",
+        body: JSON.stringify(crearDatosEmpleado(datosEmpleado, usuarioCreado.idUsuario))
+      });
+    } catch (error) {
+      try {
+        await solicitarApi(`/usuarios/${usuarioCreado.idUsuario}`, {
+          method: "DELETE"
+        });
+      } catch (errorLimpieza) {
+        console.error("No se pudo eliminar el usuario creado durante la operación fallida.", errorLimpieza);
+      }
+
+      throw error;
+    }
+
+    return {
+      exito: true,
+      mensaje: "Empleado registrado correctamente."
+    };
+  } catch (error) {
+    return {
+      exito: false,
+      mensaje: error.message
+    };
+  }
+}
+
+export async function eliminarEmpleado(id) {
+  try {
+    const empleado = await solicitarApi(`/empleados/${id}`);
+
+    await solicitarApi(`/empleados/${id}`, {
+      method: "DELETE"
+    });
+
+    try {
+      await solicitarApi(`/usuarios/${empleado.usuarioEmpleado}`, {
+        method: "DELETE"
+      });
+    } catch (error) {
+      return {
+        exito: true,
+        tipo: "warning",
+        mensaje: "El empleado fue eliminado, pero no se pudo eliminar su usuario asociado."
+      };
+    }
+
+    return {
+      exito: true,
+      tipo: "success",
+      mensaje: "Empleado eliminado correctamente."
+    };
+  } catch (error) {
+    return {
+      exito: false,
+      tipo: "danger",
+      mensaje: error.message
+    };
+  }
 }

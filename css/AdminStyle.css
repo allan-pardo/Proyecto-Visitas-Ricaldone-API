@@ -30,6 +30,10 @@
   padding-bottom: 5px;
 }
 
+.admin-navbar .navbar-nav {
+  gap: 18px;
+}
+
 .admin-navbar .nav-link::after {
   content: "";
   position: absolute;
@@ -176,6 +180,10 @@
 }
 
 @media (max-width: 768px) {
+  .admin-navbar .navbar-nav {
+    gap: 6px;
+  }
+
   .admin-contenido {
     width: min(100% - 20px, 1000px);
     padding-top: 20px;

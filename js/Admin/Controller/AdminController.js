@@ -18,8 +18,15 @@ const btnGuardarEmpleado = document.getElementById("btnGuardarEmpleado");
 const btnCancelarEdicion = document.getElementById("btnCancelarEdicion");
 const btnRecargarEmpleados = document.getElementById("btnRecargarEmpleados");
 const mensajeEmpleado = document.getElementById("mensajeEmpleado");
+const sesionAdministradorActiva = sessionStorage.getItem("adminSesionActiva") === "true";
+
+if (formEmpleado && !sesionAdministradorActiva) {
+  window.location.replace("InicioSesion.html");
+}
 
 function mostrarMensaje(mensaje, tipo) {
+  if (!mensajeEmpleado) return;
+
   mensajeEmpleado.textContent = mensaje;
   mensajeEmpleado.className = `alert alert-${tipo}`;
 }
@@ -46,8 +53,29 @@ function crearBotonAccion(texto, icono, clase, accion, id) {
   return boton;
 }
 
-function mostrarEmpleados() {
-  const empleados = obtenerEmpleados();
+async function mostrarEmpleados() {
+  if (!tablaEmpleadosBody) return false;
+
+  tablaEmpleadosBody.innerHTML = `
+    <tr>
+      <td colspan="6" class="text-center text-secondary py-4">Cargando empleados...</td>
+    </tr>
+  `;
+
+  let empleados;
+
+  try {
+    empleados = await obtenerEmpleados();
+  } catch (error) {
+    tablaEmpleadosBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center text-danger py-4">${error.message}</td>
+      </tr>
+    `;
+    mostrarMensaje(error.message, "danger");
+    return false;
+  }
+
   tablaEmpleadosBody.innerHTML = "";
 
   if (empleados.length === 0) {
@@ -59,7 +87,7 @@ function mostrarEmpleados() {
     celdaVacia.textContent = "No hay empleados registrados.";
     filaVacia.appendChild(celdaVacia);
     tablaEmpleadosBody.appendChild(filaVacia);
-    return;
+    return true;
   }
 
   empleados.forEach(empleado => {
@@ -85,9 +113,13 @@ function mostrarEmpleados() {
 
     tablaEmpleadosBody.appendChild(fila);
   });
+
+  return true;
 }
 
 function limpiarFormulario() {
+  if (!formEmpleado) return;
+
   formEmpleado.reset();
   formEmpleado.classList.remove("was-validated");
   empleadoIdInput.value = "";
@@ -96,28 +128,32 @@ function limpiarFormulario() {
   btnCancelarEdicion.classList.add("d-none");
 }
 
-function editarEmpleado(id) {
-  const empleado = obtenerEmpleadoPorId(id);
+async function editarEmpleado(id) {
+  try {
+    const empleado = await obtenerEmpleadoPorId(id);
 
-  if (!empleado) {
-    mostrarMensaje("No se encontró el empleado seleccionado.", "danger");
-    return;
+    if (!empleado) {
+      mostrarMensaje("No se encontró el empleado seleccionado.", "danger");
+      return;
+    }
+
+    empleadoIdInput.value = empleado.id;
+    nombreEmpleadoInput.value = empleado.nombre;
+    apellidoEmpleadoInput.value = empleado.apellido;
+    claveEmpleadoInput.value = empleado.clave;
+    correoEmpleadoInput.value = empleado.correo;
+    rolEmpleadoInput.value = empleado.rol;
+
+    tituloFormularioEmpleado.textContent = "Editar empleado";
+    btnGuardarEmpleado.textContent = "Actualizar empleado";
+    btnCancelarEdicion.classList.remove("d-none");
+    formEmpleado.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    mostrarMensaje(error.message, "danger");
   }
-
-  empleadoIdInput.value = empleado.id;
-  nombreEmpleadoInput.value = empleado.nombre;
-  apellidoEmpleadoInput.value = empleado.apellido;
-  claveEmpleadoInput.value = empleado.clave;
-  correoEmpleadoInput.value = empleado.correo;
-  rolEmpleadoInput.value = empleado.rol;
-
-  tituloFormularioEmpleado.textContent = "Editar empleado";
-  btnGuardarEmpleado.textContent = "Actualizar empleado";
-  btnCancelarEdicion.classList.remove("d-none");
-  formEmpleado.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-formEmpleado.addEventListener("submit", function (e) {
+formEmpleado?.addEventListener("submit", async function (e) {
   e.preventDefault();
 
   if (!formEmpleado.checkValidity()) {
@@ -125,7 +161,11 @@ formEmpleado.addEventListener("submit", function (e) {
     return;
   }
 
-  const resultado = guardarEmpleado({
+  const textoBoton = btnGuardarEmpleado.textContent;
+  btnGuardarEmpleado.disabled = true;
+  btnGuardarEmpleado.textContent = "Guardando...";
+
+  const resultado = await guardarEmpleado({
     id: empleadoIdInput.value,
     nombre: nombreEmpleadoInput.value,
     apellido: apellidoEmpleadoInput.value,
@@ -134,15 +174,18 @@ formEmpleado.addEventListener("submit", function (e) {
     rol: rolEmpleadoInput.value
   });
 
-  mostrarMensaje(resultado.mensaje, resultado.exito ? "success" : "danger");
+  btnGuardarEmpleado.disabled = false;
+  btnGuardarEmpleado.textContent = textoBoton;
+
+  mostrarMensaje(resultado.mensaje, resultado.tipo || (resultado.exito ? "success" : "danger"));
 
   if (resultado.exito) {
     limpiarFormulario();
-    mostrarEmpleados();
+    await mostrarEmpleados();
   }
 });
 
-tablaEmpleadosBody.addEventListener("click", function (e) {
+tablaEmpleadosBody?.addEventListener("click", async function (e) {
   const botonAccion = e.target.closest("[data-accion]");
 
   if (!botonAccion) return;
@@ -150,7 +193,7 @@ tablaEmpleadosBody.addEventListener("click", function (e) {
   const id = botonAccion.dataset.id;
 
   if (botonAccion.dataset.accion === "editar") {
-    editarEmpleado(id);
+    await editarEmpleado(id);
     return;
   }
 
@@ -159,21 +202,22 @@ tablaEmpleadosBody.addEventListener("click", function (e) {
 
     if (!confirmarEliminacion) return;
 
-    const resultado = eliminarEmpleado(id);
-    mostrarMensaje(resultado.mensaje, resultado.exito ? "success" : "danger");
+    const resultado = await eliminarEmpleado(id);
+    mostrarMensaje(resultado.mensaje, resultado.tipo || (resultado.exito ? "success" : "danger"));
 
     if (resultado.exito) {
       if (empleadoIdInput.value === id) limpiarFormulario();
-      mostrarEmpleados();
+      await mostrarEmpleados();
     }
   }
 });
 
-btnCancelarEdicion.addEventListener("click", limpiarFormulario);
+btnCancelarEdicion?.addEventListener("click", limpiarFormulario);
 
-btnRecargarEmpleados.addEventListener("click", function () {
-  mostrarEmpleados();
-  mostrarMensaje("Lista actualizada.", "info");
+btnRecargarEmpleados?.addEventListener("click", async function () {
+  const listaActualizada = await mostrarEmpleados();
+
+  if (listaActualizada) mostrarMensaje("Lista actualizada.", "info");
 });
 
-mostrarEmpleados();
+if (tablaEmpleadosBody && sesionAdministradorActiva) mostrarEmpleados();

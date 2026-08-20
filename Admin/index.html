@@ -31,10 +31,10 @@
                 <div class="collapse navbar-collapse" id="navbarAdmin">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="index.html">Docentes</a>
+                            <a class="nav-link active" aria-current="page" href="./index.html">Docentes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="../Docentes/perfil.html">Perfil</a>
+                            <a class="nav-link" href="./Perfil.html">Perfil</a>
                         </li>
                     </ul>
                 </div>
@@ -45,7 +45,7 @@
     <main class="admin-contenido">
         <header class="admin-encabezado text-center">
             <h1>Gestión de Docentes y Empleados</h1>
-            <p>CRUD - Administración de usuarios del sistema</p>
+            <p>Administración de usuarios del sistema</p>
         </header>
 
         <div class="admin-superficie">
@@ -86,11 +86,12 @@
                             <label for="rolEmpleado" class="form-label">Rol</label>
                             <select class="form-select" id="rolEmpleado" required>
                                 <option value="" selected disabled>Seleccionar rol</option>
-                                <option value="Docente">Docente</option>
-                                <option value="Administrador">Administrador</option>
-                                <option value="Secretaría">Secretaría</option>
-                                <option value="Seguridad">Seguridad</option>
-                                <option value="Mantenimiento">Mantenimiento</option>
+                                <option value="ADMINISTRADOR">Administrador</option>
+                                <option value="COORDINADOR ACADÉMICO">Coordinador académico</option>
+                                <option value="COORDINADOR TÉCNICO">Coordinador técnico</option>
+                                <option value="DOCENTE TÉCNICO">Docente técnico</option>
+                                <option value="DOCENTE ACADÉMICO">Docente académico</option>
+                                <option value="RECEPCIONISTA">Recepcionista</option>
                             </select>
                             <div class="invalid-feedback">Seleccione un rol.</div>
                         </div>
@@ -117,7 +118,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table admin-tabla mb-0 align-middle">
+                    <table class="table admin-tabla mb-0 align-middle" id="tablaEmpleados">
                         <thead>
                             <tr>
                                 <th scope="col">Nombre</th>
