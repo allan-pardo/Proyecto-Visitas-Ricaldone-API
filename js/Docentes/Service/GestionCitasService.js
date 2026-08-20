@@ -46,9 +46,9 @@ export async function agregarCita(datosCita, idEmpleado) {
     body: JSON.stringify({
       idEmpleado: Number(idEmpleado),
       idEstudianteEncargado: Number(datosCita.idEstudianteEncargado),
-      motivo: datosCita.motivo,
+      motivo: datosCita.asunto,
       estado: "PENDIENTE",
-      observaciones: datosCita.observaciones || "",
+      observaciones: datosCita.descripcion,
       fechaReunion: `${datosCita.fecha}T${datosCita.hora}:00`
     })
   });
@@ -82,8 +82,8 @@ function convertirCitaParaVista(cita) {
     fechaHora: `${formatearFechaEspanol(fechaHora.fecha)}, ${formatearHoraAMPM(fechaHora.hora)}`,
     estudiante: relacion?.nombreEstudiante || "Estudiante no disponible",
     encargado: relacion?.nombreEncargado || "Encargado no disponible",
-    motivo: cita.motivo,
-    observaciones: cita.observaciones || "",
+    asunto: cita.motivo,
+    descripcion: cita.observaciones || "",
     estado: nombresEstado[cita.estado] || cita.estado
   };
 }

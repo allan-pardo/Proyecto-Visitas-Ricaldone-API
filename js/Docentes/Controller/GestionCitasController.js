@@ -15,9 +15,8 @@ const cuerpoTablaCitas = document.getElementById("cuerpoTablaCitas");
 const filtros = document.querySelectorAll('input[name="filtro"]');
 const fechaInput = document.getElementById("fechaCita");
 const estudianteEncargadoSelect = document.getElementById("idEstudianteEncargado");
-const motivoSelect = document.getElementById("motivoCita");
-const contenedorOtroMotivo = document.getElementById("contenedorOtroMotivo");
-const otroMotivoInput = document.getElementById("otroMotivo");
+const asuntoInput = document.getElementById("asuntoCita");
+const descripcionInput = document.getElementById("descripcionCita");
 
 const modalCita = document.getElementById("modalCitaAgendada");
 const btnCerrarModalCitas = document.getElementById("btn-cerrar-modal-citas");
@@ -58,8 +57,9 @@ function cargarOpcionesEstudiantes(relaciones) {
   relaciones.forEach(relacion => {
     const opcion = document.createElement("option");
     opcion.value = relacion.idEstudianteEncargado;
-    opcion.textContent = `${relacion.nombreEstudiante} — ${relacion.nombreEncargado}`;
+    opcion.textContent = relacion.nombreEstudiante;
     opcion.dataset.nombreEstudiante = relacion.nombreEstudiante;
+    opcion.dataset.idEstudiante = relacion.idEstudiante;
     estudianteEncargadoSelect.appendChild(opcion);
   });
 }
@@ -85,7 +85,6 @@ if (formCita) {
       mostrarConfirmacionCita(datosCita);
 
       formCita.reset();
-      contenedorOtroMotivo?.classList.add("d-none");
       configurarFechaMinima();
       mostrarCitas(await obtenerCitas(idEmpleadoSesion));
     } catch (error) {
@@ -96,21 +95,8 @@ if (formCita) {
   });
 }
 
-motivoSelect?.addEventListener("change", function () {
-  if (this.value === "Otro") {
-    contenedorOtroMotivo?.classList.remove("d-none");
-    otroMotivoInput.setAttribute("required", "required");
-  } else {
-    contenedorOtroMotivo?.classList.add("d-none");
-    otroMotivoInput.removeAttribute("required");
-    otroMotivoInput.value = "";
-  }
-});
-
 // Obtiene los valores ingresados en el formulario.
 function obtenerDatosFormulario() {
-  const motivoSeleccionado = motivoSelect.value;
-  const motivoFinal = motivoSeleccionado === "Otro" ? otroMotivoInput.value.trim() : motivoSeleccionado;
   const opcionEstudiante = estudianteEncargadoSelect.options[estudianteEncargadoSelect.selectedIndex];
 
   return {
@@ -118,8 +104,8 @@ function obtenerDatosFormulario() {
     nombre: opcionEstudiante?.dataset.nombreEstudiante || "",
     fecha: document.getElementById("fechaCita").value,
     hora: document.getElementById("horaCita").value,
-    motivo: motivoFinal,
-    observaciones: document.getElementById("observaciones").value.trim()
+    asunto: asuntoInput.value.trim(),
+    descripcion: descripcionInput.value.trim()
   };
 }
 
@@ -206,7 +192,7 @@ function mostrarCitas(listaCitas) {
       <tr>
         <td>${cita.fechaHora}</td>
         <td>${cita.estudiante}</td>
-        <td>${cita.motivo}</td>
+        <td>${cita.asunto}</td>
         <td>
           <span class="estado-cita estado-${cita.estado.toLowerCase()}">
             ${cita.estado}

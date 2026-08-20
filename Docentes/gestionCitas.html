@@ -133,7 +133,7 @@
                                     <tr>
                                         <th>Fecha y Hora</th>
                                         <th>Estudiante</th>
-                                        <th>Motivo</th>
+                                        <th>Asunto</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
@@ -176,50 +176,48 @@
                         <form id="formCita">
 
                             <div class="mb-3">
-                                <label class="form-label" for="idEstudianteEncargado">Estudiante y encargado <span
+                                <label class="form-label" for="asuntoCita">Asunto <span
                                         class="text-danger">*</span></label>
-                                <select class="form-select rounded-pill" id="idEstudianteEncargado" required>
-                                    <option value="">Cargando estudiantes...</option>
-                                </select>
+                                <input type="text" class="form-control rounded-pill" id="asuntoCita"
+                                    name="asuntoCita" placeholder="Asunto" maxlength="200" required>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Fecha <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control rounded-pill" id="fechaCita" required>
+                                    <label class="form-label" for="fechaCita">Fecha <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control rounded-pill" id="fechaCita"
+                                        name="fechaCita" required>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label">Hora <span class="text-danger">*</span></label>
-                                    <input type="time" class="form-control rounded-pill" id="horaCita" required>
+                                    <label class="form-label" for="horaCita">Hora <span
+                                            class="text-danger">*</span></label>
+                                    <input type="time" class="form-control rounded-pill" id="horaCita"
+                                        name="horaCita" required>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Motivo <span class="text-danger">*</span></label>
-                                <select class="form-select rounded-pill" id="motivoCita" required>
-                                    <option value="">Seleccione motivo</option>
-                                    <option value="Reunión con docente">Reunión con docente</option>
-                                    <option value="Permiso de salida">Permiso de salida</option>
-                                    <option value="Consulta académica">Consulta académica</option>
-                                    <option value="Bajo rendimiento académico">Bajo rendimiento académico</option>
-                                    <option value="Otro">Otro</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3 d-none" id="contenedorOtroMotivo">
-                                <label class="form-label">Especifique el motivo <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control rounded-pill" id="otroMotivo" placeholder="Escriba el motivo personalizado...">
+                                <label class="form-label" for="descripcionCita">Descripción de la
+                                    convocatoria <span class="text-danger">*</span></label>
+                                <textarea class="form-control rounded-4" id="descripcionCita"
+                                    name="descripcionCita" rows="2" maxlength="255" placeholder="Mensaje"
+                                    required></textarea>
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label">Observaciones</label>
-                                <textarea class="form-control rounded-4" id="observaciones" rows="2"
-                                    placeholder="Información adicional..."></textarea>
+                                <label class="form-label" for="idEstudianteEncargado">Estudiante <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select rounded-pill" id="idEstudianteEncargado"
+                                    name="idEstudianteEncargado" required>
+                                    <option value="">Cargando estudiantes...</option>
+                                </select>
                             </div>
 
-                            <button type="submit" class="btn btn-dark w-100 rounded-pill py-2">
-                                Registrar
+                            <button type="submit" id="btnEnviarCita"
+                                class="btn btn-dark w-100 rounded-pill py-2">
+                                Enviar
                             </button>
 
                         </form>

@@ -1,16 +1,28 @@
 // Validar datos al agendar una cita
 export function validarDatosCita(datosCita) {
-    if (!datosCita.idEstudianteEncargado) {
-        return { valido: false, mensaje: "Debe seleccionar al estudiante y su encargado." };
+    if (!datosCita.asunto) {
+        return { valido: false, mensaje: "Debe ingresar el asunto de la convocatoria." };
     }
     if (!datosCita.fecha) {
         return { valido: false, mensaje: "Debe seleccionar una fecha para la cita." };
     }
+
+    const fechaSeleccionada = new Date(`${datosCita.fecha}T00:00:00`);
+    const fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0);
+
+    if (fechaSeleccionada < fechaActual) {
+        return { valido: false, mensaje: "La fecha de la cita no puede ser anterior al día de hoy." };
+    }
+
     if (!datosCita.hora) {
         return { valido: false, mensaje: "Debe seleccionar una hora para la cita." };
     }
-    if (!datosCita.motivo) {
-        return { valido: false, mensaje: "Debe seleccionar o ingresar un motivo." };
+    if (!datosCita.descripcion) {
+        return { valido: false, mensaje: "Debe ingresar la descripción de la convocatoria." };
+    }
+    if (!datosCita.idEstudianteEncargado) {
+        return { valido: false, mensaje: "Debe seleccionar un estudiante." };
     }
     return { valido: true, mensaje: "" };
 }
