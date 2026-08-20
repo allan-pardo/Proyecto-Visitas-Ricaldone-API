@@ -9,11 +9,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   const perfilCorreo = document.getElementById("perfilCorreo");
   const btnLogout = document.getElementById("btnLogout");
 
-  if (!sessionStorage.getItem("empleadoId")) {
-    window.location.replace("InicioSesion.html");
-    return;
-  }
-
   try {
     const perfil = await obtenerPerfilSesion();
     perfilCorreo.textContent = perfil?.correo || correoGuardado || "Correo no disponible";

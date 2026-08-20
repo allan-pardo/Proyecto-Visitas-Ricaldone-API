@@ -7,6 +7,7 @@ import {
   formatearFechaEspanol,
   formatearHoraAMPM
 } from "../Service/GestionCitasService.js";
+import { obtenerIdEmpleadoActivo } from "../Service/ApiService.js";
 
 const formCita = document.getElementById("formCita");
 const mensajeVacio = document.getElementById("mensajeVacio");
@@ -21,7 +22,7 @@ const descripcionInput = document.getElementById("descripcionCita");
 const modalCita = document.getElementById("modalCitaAgendada");
 const btnCerrarModalCitas = document.getElementById("btn-cerrar-modal-citas");
 const btnVerCitas = document.getElementById("btn-ver-citas");
-const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
+let idEmpleadoSesion = 0;
 const INTERVALO_ACTUALIZACION = 15000;
 let actualizacionEnCurso = false;
 
@@ -30,12 +31,8 @@ configurarFechaMinima();
 cargarDatosIniciales();
 
 async function cargarDatosIniciales() {
-  if (!idEmpleadoSesion) {
-    window.location.replace("InicioSesion.html");
-    return;
-  }
-
   try {
+    idEmpleadoSesion = await obtenerIdEmpleadoActivo();
     const [relaciones, listaCitas] = await Promise.all([
       obtenerEstudiantesEncargados(),
       obtenerCitas(idEmpleadoSesion)
@@ -45,7 +42,7 @@ async function cargarDatosIniciales() {
     mostrarCitas(listaCitas);
     configurarActualizacionAutomatica();
   } catch (error) {
-    alert(error.message);
+    console.error("No fue posible cargar las citas al abrir la página.", error);
     mostrarCitas([]);
   }
 }

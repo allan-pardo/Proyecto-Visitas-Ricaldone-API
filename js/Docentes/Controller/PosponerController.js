@@ -15,11 +15,6 @@ const justificacionInput = document.getElementById("justificacionPosponer");
 const parametros = new URLSearchParams(window.location.search);
 const idCita = Number(parametros.get("id"));
 
-if (!sessionStorage.getItem("empleadoId")) {
-    window.location.replace("InicioSesion.html");
-}
-
-
 //Impide seleccionar una fecha anterior al día actual.
 
 if (fechaSugeridaInput) {

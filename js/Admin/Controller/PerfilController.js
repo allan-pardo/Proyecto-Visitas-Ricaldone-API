@@ -4,12 +4,10 @@ import {
 } from "../Service/PerfilService.js";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const perfil = obtenerPerfilAdministrador();
-
-  if (!perfil) {
-    window.location.replace("InicioSesion.html");
-    return;
-  }
+  const perfil = obtenerPerfilAdministrador() || {
+    nombre: "Administrador",
+    correo: "Acceso de prueba sin inicio de sesión"
+  };
 
   const perfilAdminNombre = document.getElementById("perfilAdminNombre");
   const perfilAdminCorreo = document.getElementById("perfilAdminCorreo");

@@ -44,3 +44,34 @@ export async function solicitarApi(ruta, opciones = {}) {
 
   return contenido;
 }
+
+// Permite utilizar el frontend durante las pruebas sin pasar por el inicio de sesión.
+// Si existe una sesión conserva su empleado; de lo contrario usa el primer docente de la API.
+export async function obtenerEmpleadoActivo() {
+  const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
+
+  if (idEmpleadoSesion) {
+    try {
+      return await solicitarApi(`/empleados/${idEmpleadoSesion}`);
+    } catch (error) {
+      // Si la sesión guardada ya no existe, continúa con un empleado disponible.
+    }
+  }
+
+  const empleados = await solicitarApi("/empleados");
+  const listaEmpleados = Array.isArray(empleados) ? empleados : [];
+  const empleado = listaEmpleados.find(registro =>
+    registro.empRol?.trim().toUpperCase().includes("DOCENTE")
+  ) || listaEmpleados[0];
+
+  if (!empleado) {
+    throw new Error("La API no tiene empleados disponibles para ejecutar el modo de prueba.");
+  }
+
+  return empleado;
+}
+
+export async function obtenerIdEmpleadoActivo() {
+  const empleado = await obtenerEmpleadoActivo();
+  return Number(empleado.idEmpleado);
+}

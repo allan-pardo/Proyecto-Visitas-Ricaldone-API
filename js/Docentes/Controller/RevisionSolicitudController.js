@@ -16,11 +16,6 @@ btnAceptarSolicitud?.classList.add("disabled");
 document.addEventListener("DOMContentLoaded", cargarSolicitud);
 
 async function cargarSolicitud() {
-  if (!sessionStorage.getItem("empleadoId")) {
-    window.location.replace("InicioSesion.html");
-    return;
-  }
-
   if (!idCita) {
     alert("No se recibió el ID de la solicitud.");
     window.location.replace("solicitudes.html");
@@ -33,7 +28,7 @@ async function cargarSolicitud() {
     btnPosponerSolicitud.href = `posponer.html?id=${idCita}`;
     btnAceptarSolicitud?.classList.remove("disabled");
   } catch (error) {
-    alert(error.message);
+    console.error("No fue posible cargar el detalle de la solicitud.", error);
   }
 }
 

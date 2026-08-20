@@ -1,15 +1,11 @@
 import { obtenerResumenCitas } from "../Service/InicioService.js";
+import { obtenerIdEmpleadoActivo } from "../Service/ApiService.js";
 
-const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
-
-if (!sessionStorage.getItem("userCorreo") || !idEmpleadoSesion) {
-    window.location.replace("InicioSesion.html");
-} else {
-    document.addEventListener("DOMContentLoaded", cargarResumen);
-}
+document.addEventListener("DOMContentLoaded", cargarResumen);
 
 async function cargarResumen() {
     try {
+        const idEmpleadoSesion = await obtenerIdEmpleadoActivo();
         const resumen = await obtenerResumenCitas(idEmpleadoSesion);
         document.getElementById("cantidadCitasHoy").textContent = resumen.citasHoy;
         document.getElementById("cantidadCitasPendientes").textContent = resumen.pendientes;

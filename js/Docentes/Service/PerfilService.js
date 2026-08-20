@@ -1,17 +1,11 @@
-import { solicitarApi } from "./ApiService.js";
+import { obtenerEmpleadoActivo } from "./ApiService.js";
 
 export function obtenerCorreoSesion() {
   return sessionStorage.getItem("userCorreo");
 }
 
 export async function obtenerPerfilSesion() {
-  const idEmpleado = Number(sessionStorage.getItem("empleadoId"));
-
-  if (!idEmpleado) {
-    return null;
-  }
-
-  const empleado = await solicitarApi(`/empleados/${idEmpleado}`);
+  const empleado = await obtenerEmpleadoActivo();
 
   return {
     idEmpleado: empleado.idEmpleado,

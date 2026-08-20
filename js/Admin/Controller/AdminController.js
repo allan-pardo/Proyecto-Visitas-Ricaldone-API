@@ -18,12 +18,6 @@ const btnGuardarEmpleado = document.getElementById("btnGuardarEmpleado");
 const btnCancelarEdicion = document.getElementById("btnCancelarEdicion");
 const btnRecargarEmpleados = document.getElementById("btnRecargarEmpleados");
 const mensajeEmpleado = document.getElementById("mensajeEmpleado");
-const sesionAdministradorActiva = sessionStorage.getItem("adminSesionActiva") === "true";
-
-if (formEmpleado && !sesionAdministradorActiva) {
-  window.location.replace("InicioSesion.html");
-}
-
 function mostrarMensaje(mensaje, tipo) {
   if (!mensajeEmpleado) return;
 
@@ -220,4 +214,4 @@ btnRecargarEmpleados?.addEventListener("click", async function () {
   if (listaActualizada) mostrarMensaje("Lista actualizada.", "info");
 });
 
-if (tablaEmpleadosBody && sesionAdministradorActiva) mostrarEmpleados();
+if (tablaEmpleadosBody) mostrarEmpleados();

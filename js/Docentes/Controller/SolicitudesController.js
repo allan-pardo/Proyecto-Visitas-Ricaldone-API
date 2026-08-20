@@ -1,16 +1,12 @@
 import { obtenerSolicitudes } from "../Service/SolicitudesService.js";
+import { obtenerIdEmpleadoActivo } from "../Service/ApiService.js";
 
 const tablaSolicitudesPendientesBody = document.getElementById("txtTablaSolicitudesPendientesBody");
 const tablaSolicitudesAceptadasBody = document.getElementById("txtTablaSolicitudesAceptadasBody");
-const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
 
 document.addEventListener("DOMContentLoaded", async () => {
-  if (!idEmpleadoSesion) {
-    window.location.replace("InicioSesion.html");
-    return;
-  }
-
   try {
+    const idEmpleadoSesion = await obtenerIdEmpleadoActivo();
     const solicitudes = await obtenerSolicitudes(idEmpleadoSesion);
     const solicitudesPendientes = solicitudes.filter(solicitud => solicitud.estado === "PENDIENTE");
     const solicitudesAceptadas = solicitudes.filter(solicitud => solicitud.estado === "ACEPTADA");
