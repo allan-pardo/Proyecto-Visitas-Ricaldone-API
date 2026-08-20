@@ -232,7 +232,8 @@ function mostrarCitas(listaCitas) {
   listaCitas.forEach(cita => {
     cuerpoTablaCitas.innerHTML += `
       <tr>
-        <td>${escaparHtml(cita.fechaHora)}</td>
+        <td>${escaparHtml(cita.fecha)}</td>
+        <td>${escaparHtml(cita.hora)}</td>
         <td>${escaparHtml(cita.estudiante)}</td>
         <td>${escaparHtml(cita.asunto)}</td>
         <td>

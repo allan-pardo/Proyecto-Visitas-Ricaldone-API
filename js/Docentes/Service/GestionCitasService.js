@@ -3,6 +3,7 @@ import { validarDatosCita } from "./validaciones.js";
 
 let citas = [];
 let estudiantesEncargados = [];
+const MARCADOR_SOLICITUD_PADRE = "[SOLICITUD_PADRE]";
 
 const nombresEstado = {
   PENDIENTE: "Pendiente",
@@ -26,6 +27,7 @@ export async function obtenerCitas(idEmpleado) {
   );
 
   citas = (Array.isArray(citasApi) ? citasApi : [])
+    .filter(cita => !cita.observaciones?.startsWith(MARCADOR_SOLICITUD_PADRE))
     .map(convertirCitaParaVista);
 
   return citas;
@@ -80,6 +82,8 @@ function convertirCitaParaVista(cita) {
     idEmpleado: cita.idEmpleado,
     idEstudianteEncargado: cita.idEstudianteEncargado,
     fechaReunion: cita.fechaReunion,
+    fecha: formatearFechaEspanol(fechaHora.fecha),
+    hora: formatearHoraAMPM(fechaHora.hora),
     fechaHora: `${formatearFechaEspanol(fechaHora.fecha)}, ${formatearHoraAMPM(fechaHora.hora)}`,
     estudiante: cita.nombreEstudiante || relacion?.nombreEstudiante || "Estudiante no disponible",
     encargado: cita.nombreEncargado || relacion?.nombreEncargado || "Encargado no disponible",
