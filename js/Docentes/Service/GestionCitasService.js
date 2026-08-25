@@ -1,5 +1,7 @@
+
 import { solicitarApi } from "./ApiService.js";
 import { validarDatosCita } from "./validaciones.js";
+
 
 let citas = [];
 let estudiantesEncargados = [];

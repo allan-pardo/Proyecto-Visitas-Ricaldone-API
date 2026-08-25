@@ -34,7 +34,7 @@ export async function solicitarApi(ruta, opciones = {}) {
       contenido?.message ||
       contenido?.detail ||
       contenido?.error ||
-      `La API respondió con el estado ${respuesta.status}.`
+      `La API respondió con el estado ${respuesta.status} en ${ruta}.`
     );
   }
 
@@ -61,6 +61,8 @@ export async function obtenerEmpleadoActivo() {
   const empleados = await solicitarApi("/empleados");
   const listaEmpleados = Array.isArray(empleados) ? empleados : [];
   const empleado = listaEmpleados.find(registro =>
+    registro.empCorreo?.trim().toLowerCase() === "docente.prueba@ricaldone.edu.sv"
+  ) || listaEmpleados.find(registro =>
     registro.empRol?.trim().toUpperCase().includes("DOCENTE")
   ) || listaEmpleados[0];
 
