@@ -19,9 +19,8 @@ export async function solicitarApi(ruta, opciones = {}) {
   try {
     respuesta = await fetch(`${API_BASE_URL}${ruta}`, configuracion);
   } catch (error) {
-    throw new Error(
-      "No se pudo conectar con la API. Compruebe que esté ejecutándose en el puerto 8080."
-    );
+    console.error("No fue posible realizar la solicitud.", error);
+    throw new Error("No fue posible completar la solicitud. Intente nuevamente.");
   }
 
   const tipoContenido = respuesta.headers.get("content-type") || "";
@@ -30,11 +29,12 @@ export async function solicitarApi(ruta, opciones = {}) {
     : null;
 
   if (!respuesta.ok) {
+    console.error(`La solicitud a ${ruta} respondió con el estado ${respuesta.status}.`);
     throw new Error(
       contenido?.message ||
       contenido?.detail ||
       contenido?.error ||
-      `La API respondió con el estado ${respuesta.status} en ${ruta}.`
+      "No fue posible completar la solicitud. Intente nuevamente."
     );
   }
 
@@ -67,7 +67,7 @@ export async function obtenerEmpleadoActivo() {
   ) || listaEmpleados[0];
 
   if (!empleado) {
-    throw new Error("La API no tiene empleados disponibles para ejecutar el modo de prueba.");
+    throw new Error("No se encontraron empleados disponibles.");
   }
 
   return empleado;
