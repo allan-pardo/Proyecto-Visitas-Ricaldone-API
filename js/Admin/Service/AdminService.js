@@ -1,196 +1,262 @@
 import { solicitarApi } from "../../Docentes/Service/ApiService.js";
+import { RUTAS } from "../../config.js";
 
-const ROLES_PERMITIDOS = [
-  "ADMINISTRADOR",
-  "COORDINADOR ACADÉMICO",
-  "COORDINADOR TÉCNICO",
-  "DOCENTE TÉCNICO",
-  "DOCENTE ACADÉMICO",
-  "RECEPCIONISTA"
+
+// Mapa de roles → tabla que le corresponde
+
+const ROLES = {
+    "ADMINISTRADOR": {
+        recurso: "administradores",
+        ruta: RUTAS.ADMINISTRADORES,
+        prefijo: "adm",
+        campoId: "idAdministrador"
+    },
+    "RECEPCIONISTA": {
+        recurso: "recepcionistas",
+        ruta: RUTAS.RECEPCIONISTAS,
+        prefijo: "rec",
+        campoId: "idRecepcionista"
+    },
+    "DOCENTE TÉCNICO": {
+        recurso: "docentes",
+        ruta: RUTAS.DOCENTES,
+        prefijo: "doc",
+        campoId: "idDocente",
+        tipoDocente: "DOCENTE TÉCNICO"
+    },
+    "DOCENTE ACADÉMICO": {
+        recurso: "docentes",
+        ruta: RUTAS.DOCENTES,
+        prefijo: "doc",
+        campoId: "idDocente",
+        tipoDocente: "DOCENTE ACADÉMICO"
+    }
+};
+
+
+const RECURSOS = [
+    ROLES["ADMINISTRADOR"],
+    ROLES["DOCENTE TÉCNICO"],
+    ROLES["RECEPCIONISTA"]
 ];
+// Identificadores compuestos
 
-function convertirEmpleado(empleado) {
-  return {
-    id: String(empleado.idEmpleado),
-    nombre: empleado.empNombre,
-    apellido: empleado.empApellido,
-    clave: empleado.empClave,
-    correo: empleado.empCorreo,
-    rol: empleado.empRol,
-    usuarioId: empleado.usuarioEmpleado
-  };
+function construirId(recurso, id) {
+    return `${recurso}:${id}`;
 }
 
-function prepararDatos(datosEmpleado) {
-  return {
-    id: datosEmpleado.id ? Number(datosEmpleado.id) : null,
-    nombre: datosEmpleado.nombre.trim(),
-    apellido: datosEmpleado.apellido.trim(),
-    clave: datosEmpleado.clave.trim(),
-    correo: datosEmpleado.correo.trim().toLowerCase(),
-    rol: datosEmpleado.rol.trim().toUpperCase()
-  };
+function separarId(idCompuesto) {
+    const [recurso, id] = String(idCompuesto).split(":");
+    return { recurso, id };
 }
 
-function crearDatosUsuario(datosEmpleado) {
-  return {
-    usuEmail: datosEmpleado.correo,
-    usuPassword: datosEmpleado.clave,
-    usuRol: "COLABORADOR"
-  };
+function buscarConfigPorRecurso(recurso) {
+    return RECURSOS.find(config => config.recurso === recurso) || null;
 }
 
-function crearDatosEmpleado(datosEmpleado, usuarioId) {
-  return {
-    empNombre: datosEmpleado.nombre,
-    empApellido: datosEmpleado.apellido,
-    empClave: datosEmpleado.clave,
-    empCorreo: datosEmpleado.correo,
-    empRol: datosEmpleado.rol,
-    usuarioEmpleado: Number(usuarioId)
-  };
+// Conversión API → formulario
+
+function convertirRegistro(registro, config) {
+    const p = config.prefijo;
+
+    const rol = config.recurso === "docentes"
+        ? registro.docTipo
+        : registro[`${p}Rol`];
+
+    return {
+        id: construirId(config.recurso, registro[config.campoId]),
+        nombre: registro[`${p}Nombre`] ?? "",
+        apellido: registro[`${p}Apellido`] ?? "",
+        clave: registro.docClave ?? "",   // solo DOCENTE tiene clave
+        correo: registro[`${p}Correo`] ?? "",
+        rol: rol ?? ""
+    };
 }
 
-async function validarCorreoDisponible(correo, idActual) {
-  const empleados = await solicitarApi("/empleados");
+// Conversión formulario → API
 
-  return !empleados.some(empleado =>
-    empleado.empCorreo?.trim().toLowerCase() === correo &&
-    Number(empleado.idEmpleado) !== Number(idActual)
-  );
+function construirCuerpo(datos, config) {
+    const p = config.prefijo;
+
+    const cuerpo = {
+        [`${p}Nombre`]: datos.nombre,
+        [`${p}Apellido`]: datos.apellido,
+        [`${p}Correo`]: datos.correo
+    };
+
+
+    if (config.recurso === "docentes") {
+        cuerpo.docClave = datos.clave;
+        cuerpo.docTipo = config.tipoDocente;
+    }
+
+    return cuerpo;
 }
+
+function normalizarDatos(datosFormulario) {
+    return {
+        id: datosFormulario.id || null,
+        nombre: datosFormulario.nombre.trim(),
+        apellido: datosFormulario.apellido.trim(),
+        clave: datosFormulario.clave.trim(),
+        correo: datosFormulario.correo.trim().toLowerCase(),
+        rol: datosFormulario.rol.trim().toUpperCase()
+    };
+}
+
+
+// Validaciones
+
+async function correoEstaDisponible(correo, idActual) {
+    const personal = await obtenerEmpleados();
+
+    return !personal.some(persona =>
+        persona.correo.trim().toLowerCase() === correo &&
+        persona.id !== idActual
+    );
+}
+
+function interpretarError(error, accion) {
+    const mensaje = error.message || "";
+
+    if (mensaje.includes("ORA-02292") || mensaje.includes("integrity constraint")) {
+        return "No se puede eliminar: la persona tiene citas, materias o grados asignados. Reasigne esos registros primero.";
+    }
+
+    if (mensaje.includes("ORA-00001") || mensaje.includes("unique constraint")) {
+        return "Ya existe un registro con ese correo o esa clave.";
+    }
+
+    if (mensaje.includes("ORA-00942")) {
+        return "La tabla consultada no existe en la base de datos. Verifique que el script se haya ejecutado completo.";
+    }
+
+    return mensaje || `No fue posible ${accion}.`;
+}
+
+// Lectura
 
 export async function obtenerEmpleados() {
-  const empleados = await solicitarApi("/empleados");
-  return empleados.map(convertirEmpleado);
+    // Las tres consultas van en paralelo para que la tabla cargue rápido.
+    const respuestas = await Promise.all(
+        RECURSOS.map(async config => {
+            const registros = await solicitarApi(config.ruta);
+            const lista = Array.isArray(registros) ? registros : [];
+            return lista.map(registro => convertirRegistro(registro, config));
+        })
+    );
+
+    return respuestas
+        .flat()
+        .sort((a, b) => a.apellido.localeCompare(b.apellido, "es"));
 }
 
-export async function obtenerEmpleadoPorId(id) {
-  const empleado = await solicitarApi(`/empleados/${id}`);
-  return convertirEmpleado(empleado);
+export async function obtenerEmpleadoPorId(idCompuesto) {
+    const { recurso, id } = separarId(idCompuesto);
+    const config = buscarConfigPorRecurso(recurso);
+
+    if (!config) {
+        throw new Error("No se reconoce el tipo de registro seleccionado.");
+    }
+
+    const registro = await solicitarApi(`${config.ruta}/${id}`);
+    return convertirRegistro(registro, config);
 }
+
+// Crear y actualizar
 
 export async function guardarEmpleado(datosFormulario) {
-  const datosEmpleado = prepararDatos(datosFormulario);
+    const datos = normalizarDatos(datosFormulario);
+    const config = ROLES[datos.rol];
 
-  if (!ROLES_PERMITIDOS.includes(datosEmpleado.rol)) {
-    return {
-      exito: false,
-      mensaje: "Seleccione un rol permitido por el sistema."
-    };
-  }
-
-  try {
-    const correoDisponible = await validarCorreoDisponible(datosEmpleado.correo, datosEmpleado.id);
-
-    if (!correoDisponible) {
-      return {
-        exito: false,
-        mensaje: "Ya existe un empleado registrado con ese correo."
-      };
+    if (!config) {
+        return {
+            exito: false,
+            mensaje: `El rol "${datos.rol}" no tiene una tabla asignada en la base de datos. Seleccione administrador, recepcionista o docente.`
+        };
     }
 
-    if (datosEmpleado.id) {
-      const empleadoAnterior = await solicitarApi(`/empleados/${datosEmpleado.id}`);
-      const usuarioAnterior = await solicitarApi(`/usuarios/${empleadoAnterior.usuarioEmpleado}`);
+    if (config.recurso === "docentes" && !datos.clave) {
+        return {
+            exito: false,
+            mensaje: "Los docentes necesitan una clave (por ejemplo DOC001)."
+        };
+    }
 
-      await solicitarApi(`/usuarios/${empleadoAnterior.usuarioEmpleado}`, {
-        method: "PUT",
-        body: JSON.stringify(crearDatosUsuario(datosEmpleado))
-      });
-
-      try {
-        await solicitarApi(`/empleados/${datosEmpleado.id}`, {
-          method: "PUT",
-          body: JSON.stringify(crearDatosEmpleado(datosEmpleado, empleadoAnterior.usuarioEmpleado))
-        });
-      } catch (error) {
-        try {
-          await solicitarApi(`/usuarios/${empleadoAnterior.usuarioEmpleado}`, {
-            method: "PUT",
-            body: JSON.stringify({
-              usuEmail: usuarioAnterior.usuEmail,
-              usuPassword: usuarioAnterior.usuPassword,
-              usuRol: usuarioAnterior.usuRol
-            })
-          });
-        } catch (errorRestauracion) {
-          console.error("No se pudo restaurar el usuario asociado.", errorRestauracion);
+    try {
+        if (!await correoEstaDisponible(datos.correo, datos.id)) {
+            return {
+                exito: false,
+                mensaje: "Ya existe una persona registrada con ese correo."
+            };
         }
 
-        throw error;
-      }
+        const cuerpo = construirCuerpo(datos, config);
 
-      return {
-        exito: true,
-        mensaje: "Empleado actualizado correctamente."
-      };
-    }
+        // --- Alta ---
+        if (!datos.id) {
+            await solicitarApi(config.ruta, {
+                method: "POST",
+                body: JSON.stringify(cuerpo)
+            });
 
-    const usuarioCreado = await solicitarApi("/usuarios", {
-      method: "POST",
-      body: JSON.stringify(crearDatosUsuario(datosEmpleado))
-    });
+            return { exito: true, mensaje: "Registro creado correctamente." };
+        }
 
-    try {
-      await solicitarApi("/empleados", {
-        method: "POST",
-        body: JSON.stringify(crearDatosEmpleado(datosEmpleado, usuarioCreado.idUsuario))
-      });
-    } catch (error) {
-      try {
-        await solicitarApi(`/usuarios/${usuarioCreado.idUsuario}`, {
-          method: "DELETE"
+        const { recurso: recursoActual, id } = separarId(datos.id);
+
+        // --- Edición dentro de la misma tabla ---
+        if (recursoActual === config.recurso) {
+            await solicitarApi(`${config.ruta}/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(cuerpo)
+            });
+
+            return { exito: true, mensaje: "Registro actualizado correctamente." };
+        }
+
+        await solicitarApi(config.ruta, {
+            method: "POST",
+            body: JSON.stringify(cuerpo)
         });
-      } catch (errorLimpieza) {
-        console.error("No se pudo eliminar el usuario creado durante la operación fallida.", errorLimpieza);
-      }
 
-      throw error;
+        const configAnterior = buscarConfigPorRecurso(recursoActual);
+
+        try {
+            await solicitarApi(`${configAnterior.ruta}/${id}`, { method: "DELETE" });
+        } catch (error) {
+            return {
+                exito: true,
+                tipo: "warning",
+                mensaje: `Se creó el registro con el nuevo rol, pero no se pudo eliminar el anterior: ${interpretarError(error, "eliminarlo")}`
+            };
+        }
+
+        return { exito: true, mensaje: "Rol actualizado correctamente." };
+
+    } catch (error) {
+        return { exito: false, mensaje: interpretarError(error, "guardar el registro") };
     }
-
-    return {
-      exito: true,
-      mensaje: "Empleado registrado correctamente."
-    };
-  } catch (error) {
-    return {
-      exito: false,
-      mensaje: error.message
-    };
-  }
 }
 
-export async function eliminarEmpleado(id) {
-  try {
-    const empleado = await solicitarApi(`/empleados/${id}`);
+// Eliminar
 
-    await solicitarApi(`/empleados/${id}`, {
-      method: "DELETE"
-    });
+export async function eliminarEmpleado(idCompuesto) {
+    const { recurso, id } = separarId(idCompuesto);
+    const config = buscarConfigPorRecurso(recurso);
 
-    try {
-      await solicitarApi(`/usuarios/${empleado.usuarioEmpleado}`, {
-        method: "DELETE"
-      });
-    } catch (error) {
-      return {
-        exito: true,
-        tipo: "warning",
-        mensaje: "El empleado fue eliminado, pero no se pudo eliminar su usuario asociado."
-      };
+    if (!config) {
+        return {
+            exito: false,
+            tipo: "danger",
+            mensaje: "No se reconoce el tipo de registro seleccionado."
+        };
     }
 
-    return {
-      exito: true,
-      tipo: "success",
-      mensaje: "Empleado eliminado correctamente."
-    };
-  } catch (error) {
-    return {
-      exito: false,
-      tipo: "danger",
-      mensaje: error.message
-    };
-  }
+    try {
+        await solicitarApi(`${config.ruta}/${id}`, { method: "DELETE" });
+        return { exito: true, tipo: "success", mensaje: "Registro eliminado correctamente." };
+    } catch (error) {
+        return { exito: false, tipo: "danger", mensaje: interpretarError(error, "eliminar el registro") };
+    }
 }

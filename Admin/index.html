@@ -20,7 +20,7 @@
                     <span class="fs-5 fw-semibold d-none d-sm-block">
                         Instituto Técnico Ricaldone
                     </span>
-                </a>//
+                </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarAdmin" aria-controls="navbarAdmin" aria-expanded="false"
@@ -72,7 +72,7 @@
 
                         <div class="mb-3">
                             <label for="claveEmpleado" class="form-label">Clave</label>
-                            <input type="text" class="form-control" id="claveEmpleado" placeholder="Clave" required>
+                            <input type="text" class="form-control" id="claveEmpleado" placeholder="Clave (solo docentes)" maxlength="20">
                             <div class="invalid-feedback">Ingrese una clave.</div>
                         </div>
 
@@ -87,8 +87,6 @@
                             <select class="form-select" id="rolEmpleado" required>
                                 <option value="" selected disabled>Seleccionar rol</option>
                                 <option value="ADMINISTRADOR">Administrador</option>
-                                <option value="COORDINADOR ACADÉMICO">Coordinador académico</option>
-                                <option value="COORDINADOR TÉCNICO">Coordinador técnico</option>
                                 <option value="DOCENTE TÉCNICO">Docente técnico</option>
                                 <option value="DOCENTE ACADÉMICO">Docente académico</option>
                                 <option value="RECEPCIONISTA">Recepcionista</option>
