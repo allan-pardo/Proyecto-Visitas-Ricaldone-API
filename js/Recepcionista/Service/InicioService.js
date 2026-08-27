@@ -22,17 +22,19 @@ export async function obtenerCitasRecepcionista({
   limpiarExpiradas = true
 } = {}) {
   const ahora = validarFechaReferencia(fechaReferencia);
-  const [respuestaCitas, respuestaEmpleados, respuestaRelaciones] = await Promise.all([
+  const [respuestaCitas, respuestaDocentes, respuestaRelaciones] = await Promise.all([
     solicitarApi("/citas-reuniones"),
-    solicitarApi("/empleados"),
+    solicitarApi("/docentes"),
     solicitarApi("/estudiante-encargados")
   ]);
 
   const citasApi = Array.isArray(respuestaCitas) ? respuestaCitas : [];
-  const empleados = Array.isArray(respuestaEmpleados) ? respuestaEmpleados : [];
+  const docentes = Array.isArray(respuestaDocentes) ? respuestaDocentes : [];
   const relaciones = Array.isArray(respuestaRelaciones) ? respuestaRelaciones : [];
-  const citasPreparadas = citasApi
-    .map(cita => convertirCitaParaVista(cita, empleados, relaciones))
+  const citasConvertidas = citasApi
+    .map(cita => convertirCitaParaVista(cita, docentes, relaciones))
+    .filter(Boolean);
+  const citasPreparadas = citasConvertidas
     .filter(cita => cita && cita.estado !== "Rechazado");
   const citasExpiradas = citasPreparadas.filter(cita =>
     citaConcluidaHaExpirado(cita, ahora)
@@ -55,7 +57,7 @@ export async function obtenerCitasRecepcionista({
     pendientes,
     concluidas,
     limpieza,
-    invalidas: citasApi.length - citasPreparadas.length
+    invalidas: citasApi.length - citasConvertidas.length
   };
 }
 
@@ -130,15 +132,16 @@ async function eliminarCitasExpiradas(citasExpiradas) {
   }, { eliminadas: [], errores: [] });
 }
 
-function convertirCitaParaVista(cita, empleados, relaciones) {
-  const fechaHora = convertirFechaReunion(cita?.fechaReunion);
+function convertirCitaParaVista(cita, docentes, relaciones) {
+  const fechaReunion = cita?.citFechaReunion ?? cita?.fechaReunion;
+  const fechaHora = convertirFechaReunion(fechaReunion);
 
   if (!fechaHora) {
     return null;
   }
 
-  const empleado = empleados.find(
-    registro => Number(registro.idEmpleado) === Number(cita.idEmpleado)
+  const docente = docentes.find(
+    registro => Number(registro.idDocente) === Number(cita.idDocente)
   );
   const relacion = relaciones.find(
     registro => Number(registro.idEstudianteEncargado) ===
@@ -147,13 +150,13 @@ function convertirCitaParaVista(cita, empleados, relaciones) {
 
   return {
     idCita: cita.idCita,
-    fechaReunion: cita.fechaReunion,
+    fechaReunion,
     fechaHora,
-    docente: obtenerNombreDocente(cita, empleado),
+    docente: obtenerNombreDocente(cita, docente),
     estudiante: cita.nombreEstudiante?.trim() ||
       relacion?.nombreEstudiante?.trim() ||
       "Estudiante no disponible",
-    motivo: cita.motivo?.trim() || "Sin motivo",
+    motivo: String(cita.citMotivo ?? cita.motivo ?? "").trim() || "Sin motivo",
     fecha: new Intl.DateTimeFormat("es-SV", {
       day: "2-digit",
       month: "2-digit",
@@ -164,19 +167,19 @@ function convertirCitaParaVista(cita, empleados, relaciones) {
       minute: "2-digit",
       hour12: true
     }).format(fechaHora),
-    estado: obtenerNombreEstado(cita.estado)
+    estado: obtenerNombreEstado(cita.citEstado ?? cita.estado)
   };
 }
 
-function obtenerNombreDocente(cita, empleado) {
+function obtenerNombreDocente(cita, docente) {
   const nombreIncluido = cita.nombreDocente?.trim() || cita.nombreEmpleado?.trim();
 
   if (nombreIncluido) {
     return nombreIncluido;
   }
 
-  const nombre = empleado?.empNombre?.trim() || "";
-  const apellido = empleado?.empApellido?.trim() || "";
+  const nombre = docente?.docNombre?.trim() || docente?.empNombre?.trim() || "";
+  const apellido = docente?.docApellido?.trim() || docente?.empApellido?.trim() || "";
   return `${nombre} ${apellido}`.trim() || "Docente no disponible";
 }
 

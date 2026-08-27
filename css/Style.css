@@ -282,6 +282,43 @@ body > *:not(header) {
   vertical-align: middle;
 }
 
+/* Mantiene estables las columnas de las tablas de Recepcionista. */
+.tabla-citas-recepcionista {
+  width: 100%;
+  min-width: 760px;
+  table-layout: fixed;
+}
+
+.tabla-citas-recepcionista th,
+.tabla-citas-recepcionista td {
+  vertical-align: middle;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.tabla-citas-recepcionista th:nth-child(1),
+.tabla-citas-recepcionista td:nth-child(1),
+.tabla-citas-recepcionista th:nth-child(2),
+.tabla-citas-recepcionista td:nth-child(2) {
+  width: 20%;
+}
+
+.tabla-citas-recepcionista th:nth-child(3),
+.tabla-citas-recepcionista td:nth-child(3) {
+  width: 34%;
+}
+
+.tabla-citas-recepcionista th:nth-child(4),
+.tabla-citas-recepcionista td:nth-child(4) {
+  width: 14%;
+}
+
+.tabla-citas-recepcionista th:nth-child(5),
+.tabla-citas-recepcionista td:nth-child(5) {
+  width: 12%;
+}
+
 /* Estado */
 .estado-cita {
   display: inline-block;
