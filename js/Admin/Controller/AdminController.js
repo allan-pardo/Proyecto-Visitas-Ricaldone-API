@@ -4,6 +4,7 @@ import {
   obtenerEmpleadoPorId,
   obtenerEmpleados
 } from "../Service/AdminService.js";
+import { avisoExito, avisoError, confirmarAccion } from "../../avisos.js";
 
 const formEmpleado = document.getElementById("formEmpleado");
 const empleadoIdInput = document.getElementById("empleadoId");
@@ -18,11 +19,23 @@ const btnGuardarEmpleado = document.getElementById("btnGuardarEmpleado");
 const btnCancelarEdicion = document.getElementById("btnCancelarEdicion");
 const btnRecargarEmpleados = document.getElementById("btnRecargarEmpleados");
 const mensajeEmpleado = document.getElementById("mensajeEmpleado");
-function mostrarMensaje(mensaje, tipo) {
-  if (!mensajeEmpleado) return;
+const inputBuscarEmpleado = document.getElementById("inputBuscarEmpleado");
 
-  mensajeEmpleado.textContent = mensaje;
-  mensajeEmpleado.className = `alert alert-${tipo}`;
+// La lista completa se guarda para que el buscador filtre sobre ella
+// sin volver a consultar la API en cada tecla.
+let personalCompleto = [];
+
+function mostrarMensaje(mensaje, tipo) {
+  if (mensajeEmpleado) {
+    mensajeEmpleado.textContent = mensaje;
+    mensajeEmpleado.className = `alert alert-${tipo}`;
+  }
+
+  if (tipo === "success") {
+    avisoExito(mensaje);
+  } else if (tipo === "danger") {
+    avisoError(mensaje);
+  }
 }
 
 function crearCelda(texto) {
@@ -52,14 +65,12 @@ async function mostrarEmpleados() {
 
   tablaEmpleadosBody.innerHTML = `
     <tr>
-      <td colspan="6" class="text-center text-secondary py-4">Cargando empleados...</td>
+      <td colspan="6" class="text-center text-secondary py-4">Cargando personal...</td>
     </tr>
   `;
 
-  let empleados;
-
   try {
-    empleados = await obtenerEmpleados();
+    personalCompleto = await obtenerEmpleados();
   } catch (error) {
     tablaEmpleadosBody.innerHTML = `
       <tr>
@@ -70,21 +81,44 @@ async function mostrarEmpleados() {
     return false;
   }
 
+  dibujarFilas(aplicarFiltro(inputBuscarEmpleado?.value || ""));
+  return true;
+}
+
+
+function aplicarFiltro(texto) {
+  const busqueda = texto.trim().toLowerCase();
+
+  if (!busqueda) {
+    return personalCompleto;
+  }
+
+  return personalCompleto.filter(persona =>
+    [persona.nombre, persona.apellido, persona.correo, persona.clave, persona.rol]
+      .some(campo => String(campo || "").toLowerCase().includes(busqueda))
+  );
+}
+
+function dibujarFilas(lista) {
   tablaEmpleadosBody.innerHTML = "";
 
-  if (empleados.length === 0) {
+  if (lista.length === 0) {
     const filaVacia = document.createElement("tr");
     const celdaVacia = document.createElement("td");
 
     celdaVacia.colSpan = 6;
     celdaVacia.className = "text-center text-secondary py-4";
-    celdaVacia.textContent = "No hay empleados registrados.";
+
+    celdaVacia.textContent = inputBuscarEmpleado?.value.trim()
+      ? "No se encontraron coincidencias."
+      : "No hay personal registrado.";
+
     filaVacia.appendChild(celdaVacia);
     tablaEmpleadosBody.appendChild(filaVacia);
-    return true;
+    return;
   }
 
-  empleados.forEach(empleado => {
+  lista.forEach(empleado => {
     const fila = document.createElement("tr");
     const celdaAcciones = document.createElement("td");
     const contenedorAcciones = document.createElement("div");
@@ -107,8 +141,6 @@ async function mostrarEmpleados() {
 
     tablaEmpleadosBody.appendChild(fila);
   });
-
-  return true;
 }
 
 function limpiarFormulario() {
@@ -117,8 +149,8 @@ function limpiarFormulario() {
   formEmpleado.reset();
   formEmpleado.classList.remove("was-validated");
   empleadoIdInput.value = "";
-  tituloFormularioEmpleado.textContent = "Agregar o editar empleado";
-  btnGuardarEmpleado.textContent = "Guardar empleado";
+  tituloFormularioEmpleado.textContent = "Agregar o editar personal";
+  btnGuardarEmpleado.textContent = "Guardar";
   btnCancelarEdicion.classList.add("d-none");
 }
 
@@ -127,7 +159,7 @@ async function editarEmpleado(id) {
     const empleado = await obtenerEmpleadoPorId(id);
 
     if (!empleado) {
-      mostrarMensaje("No se encontró el empleado seleccionado.", "danger");
+      mostrarMensaje("No se encontró el registro seleccionado.", "danger");
       return;
     }
 
@@ -138,8 +170,8 @@ async function editarEmpleado(id) {
     correoEmpleadoInput.value = empleado.correo;
     rolEmpleadoInput.value = empleado.rol;
 
-    tituloFormularioEmpleado.textContent = "Editar empleado";
-    btnGuardarEmpleado.textContent = "Actualizar empleado";
+    tituloFormularioEmpleado.textContent = "Editar registro";
+    btnGuardarEmpleado.textContent = "Actualizar";
     btnCancelarEdicion.classList.remove("d-none");
     formEmpleado.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
@@ -192,9 +224,19 @@ tablaEmpleadosBody?.addEventListener("click", async function (e) {
   }
 
   if (botonAccion.dataset.accion === "eliminar") {
-    const confirmarEliminacion = window.confirm("¿Desea eliminar este empleado?");
 
-    if (!confirmarEliminacion) return;
+    const persona = personalCompleto.find(registro => registro.id === id);
+    const nombre = persona
+      ? `${persona.nombre} ${persona.apellido}`
+      : "este registro";
+
+    const confirmado = await confirmarAccion(
+      "¿Eliminar el registro?",
+      `Se eliminará a ${nombre} del sistema. Esta acción no se puede deshacer.`,
+      "Sí, eliminar"
+    );
+
+    if (!confirmado) return;
 
     const resultado = await eliminarEmpleado(id);
     mostrarMensaje(resultado.mensaje, resultado.tipo || (resultado.exito ? "success" : "danger"));
@@ -206,12 +248,20 @@ tablaEmpleadosBody?.addEventListener("click", async function (e) {
   }
 });
 
+// Búsqueda
+inputBuscarEmpleado?.addEventListener("input", function () {
+  dibujarFilas(aplicarFiltro(this.value));
+});
+
 btnCancelarEdicion?.addEventListener("click", limpiarFormulario);
 
 btnRecargarEmpleados?.addEventListener("click", async function () {
   const listaActualizada = await mostrarEmpleados();
 
-  if (listaActualizada) mostrarMensaje("Lista actualizada.", "info");
+  if (listaActualizada && mensajeEmpleado) {
+    mensajeEmpleado.textContent = "Lista actualizada.";
+    mensajeEmpleado.className = "alert alert-info";
+  }
 });
 
 if (tablaEmpleadosBody) mostrarEmpleados();

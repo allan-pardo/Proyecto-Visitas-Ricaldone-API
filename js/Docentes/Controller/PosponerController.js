@@ -4,6 +4,7 @@ import {
     crearPropuesta,
     guardarPropuesta
 } from "../Service/PosponerService.js";
+import { avisoError } from "../../avisos.js";
 
 const fechaSugeridaInput = document.getElementById("fechaSugerida");
 const formPosponer = document.getElementById("formPosponer");
@@ -15,41 +16,47 @@ const justificacionInput = document.getElementById("justificacionPosponer");
 const parametros = new URLSearchParams(window.location.search);
 const idCita = Number(parametros.get("id"));
 
-//Impide seleccionar una fecha anterior al día actual.
 
 if (fechaSugeridaInput) {
     fechaSugeridaInput.min = obtenerFechaActual();
 }
 
-
-//Procesa el formulario para posponer la solicitud.
-
 if (formPosponer && modalPropuestaEnviada) {
-    formPosponer.addEventListener("submit", async function(e) {
+    formPosponer.addEventListener("submit", async function (e) {
         e.preventDefault();
 
         if (!idCita) {
-            alert("No se recibió el ID de la cita que desea posponer.");
+            avisoError("No se recibió el ID de la cita que desea posponer.");
             return;
         }
 
         const fecha = document.getElementById("fechaSugerida").value;
         const hora = document.getElementById("horaSugerida").value;
         const justificacion = justificacionInput.value.trim();
-        const resultadoValidacion = validarPropuesta(fecha,hora);
+        const resultadoValidacion = validarPropuesta(fecha, hora);
 
         if (!resultadoValidacion.valido) {
-            alert(resultadoValidacion.mensaje);
+            avisoError(resultadoValidacion.mensaje, "Revise los datos");
             return;
         }
 
         const propuesta = crearPropuesta(fecha, hora);
 
+        const botonEnviar = formPosponer.querySelector('button[type="submit"]');
+
+        if (botonEnviar) {
+            botonEnviar.disabled = true;
+        }
+
         try {
             await guardarPropuesta(idCita, fecha, hora, justificacion);
         } catch (error) {
-            alert(error.message);
+            avisoError(error.message);
             return;
+        } finally {
+            if (botonEnviar) {
+                botonEnviar.disabled = false;
+            }
         }
 
         if (modalPropuestaFecha) {
@@ -64,15 +71,9 @@ if (formPosponer && modalPropuestaEnviada) {
     });
 }
 
-
-//Cierra el modal y regresa a las solicitudes.
-
 if (btnCerrarModalPropuesta && modalPropuestaEnviada) {
-    btnCerrarModalPropuesta.addEventListener(
-        "click",
-        function() {
-            modalPropuestaEnviada.classList.remove("active");
-            window.location.href = "solicitudes.html";
-        }
-    );
+    btnCerrarModalPropuesta.addEventListener("click", function () {
+        modalPropuestaEnviada.classList.remove("active");
+        window.location.href = "solicitudes.html";
+    });
 }

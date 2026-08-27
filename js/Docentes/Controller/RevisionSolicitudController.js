@@ -1,14 +1,18 @@
 import {
   aceptarSolicitud,
+  rechazarSolicitud,
   obtenerDetalleSolicitud
 } from "../Service/RevisionSolicitudService.js";
+import { avisoError, avisoExito, confirmarAccion } from "../../avisos.js";
 
 const parametros = new URLSearchParams(window.location.search);
 const idCita = Number(parametros.get("id"));
 const btnAceptarSolicitud = document.getElementById("btnAceptarSolicitud");
 const btnPosponerSolicitud = document.getElementById("btnPosponerSolicitud");
+const btnRechazarSolicitud = document.getElementById("btnRechazarSolicitud");
 const modalSolicitudAceptada = document.getElementById("modalSolicitudAceptada");
 const btnCerrarModal = document.getElementById("btnCerrarModal");
+
 let detalleSolicitud = null;
 
 btnAceptarSolicitud?.classList.add("disabled");
@@ -17,34 +21,48 @@ document.addEventListener("DOMContentLoaded", cargarSolicitud);
 
 async function cargarSolicitud() {
   if (!idCita) {
-    alert("No se recibió el ID de la solicitud.");
-    window.location.replace("solicitudes.html");
+    avisoError("No se recibió el ID de la solicitud.");
+
+    setTimeout(() => window.location.replace("solicitudes.html"), 2000);
     return;
   }
 
   try {
     detalleSolicitud = await obtenerDetalleSolicitud(idCita);
     mostrarDetalle(detalleSolicitud);
-    btnPosponerSolicitud.href = `posponer.html?id=${idCita}`;
+
+    if (btnPosponerSolicitud) {
+      btnPosponerSolicitud.href = `posponer.html?id=${idCita}`;
+    }
+
     btnAceptarSolicitud?.classList.remove("disabled");
   } catch (error) {
     console.error("No fue posible cargar el detalle de la solicitud.", error);
+    avisoError(error.message, "No se pudo cargar la solicitud");
   }
 }
 
 function mostrarDetalle(detalle) {
-  document.getElementById("tituloRevisionSolicitud").textContent =
-    `Revisión de Detalles de Solicitud: ${detalle.solicitante}`;
-  document.getElementById("detalleNombreEstudiante").textContent = detalle.estudiante;
-  document.getElementById("detalleCorreoEstudiante").textContent = detalle.correo;
-  document.getElementById("detalleCodigoEstudiante").textContent = detalle.codigo;
-  document.getElementById("detalleFechaOriginal").textContent = detalle.fecha;
-  document.getElementById("detalleMotivoSolicitud").textContent = detalle.motivo;
-  document.getElementById("detalleHoraSolicitada").textContent = detalle.hora;
+  escribir("tituloRevisionSolicitud", `Revisión de Detalles de Solicitud: ${detalle.solicitante}`);
+  escribir("detalleNombreEstudiante", detalle.estudiante);
+  escribir("detalleCorreoEstudiante", detalle.correo);
+  escribir("detalleCodigoEstudiante", detalle.codigo);
+  escribir("detalleFechaOriginal", detalle.fecha);
+  escribir("detalleMotivoSolicitud", detalle.motivo);
+  escribir("detalleHoraSolicitada", detalle.hora);
 }
 
+function escribir(id, valor) {
+  const elemento = document.getElementById(id);
+
+  if (elemento) {
+    elemento.textContent = valor;
+  }
+}
+
+// Aceptar
 if (btnAceptarSolicitud && modalSolicitudAceptada) {
-  btnAceptarSolicitud.addEventListener("click", async function(e) {
+  btnAceptarSolicitud.addEventListener("click", async function (e) {
     e.preventDefault();
     btnAceptarSolicitud.classList.add("disabled");
 
@@ -52,21 +70,72 @@ if (btnAceptarSolicitud && modalSolicitudAceptada) {
       const resultado = await aceptarSolicitud(idCita);
 
       if (resultado.exito) {
-        document.getElementById("modalSolicitudPersonas").textContent =
-          `${detalleSolicitud.estudiante} y su encargado ${detalleSolicitud.solicitante} serán notificados`;
-        document.getElementById("modalSolicitudFecha").textContent =
-          `Reunión programada para el ${detalleSolicitud.fecha} a las ${detalleSolicitud.hora}`;
+        escribir("modalSolicitudPersonas",
+          `${detalleSolicitud.estudiante} y su encargado ${detalleSolicitud.solicitante} serán notificados`);
+        escribir("modalSolicitudFecha",
+          `Reunión programada para el ${detalleSolicitud.fecha} a las ${detalleSolicitud.hora}`);
+
         modalSolicitudAceptada.classList.add("active");
       }
     } catch (error) {
-      alert(error.message);
+      avisoError(error.message);
       btnAceptarSolicitud.classList.remove("disabled");
     }
   });
 }
 
+// Rechazar
+if (btnRechazarSolicitud) {
+  btnRechazarSolicitud.addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    const confirmado = await confirmarAccion(
+      "¿Rechazar la solicitud?",
+      "El encargado verá que la reunión no fue aceptada.",
+      "Sí, rechazar"
+    );
+
+    if (!confirmado) {
+      return;
+    }
+
+    let motivo = "";
+
+    if (window.Swal) {
+      const respuesta = await Swal.fire({
+        title: "Motivo del rechazo",
+        input: "textarea",
+        inputPlaceholder: "Explique brevemente por qué no puede atender la reunión...",
+        inputAttributes: { maxlength: 250 },
+        showCancelButton: true,
+        confirmButtonText: "Enviar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true
+      });
+
+      if (!respuesta.isConfirmed) {
+        return;
+      }
+
+      motivo = respuesta.value || "";
+    }
+
+    btnRechazarSolicitud.classList.add("disabled");
+
+    try {
+      await rechazarSolicitud(idCita, motivo);
+      avisoExito("La solicitud fue rechazada.");
+      setTimeout(() => window.location.href = "solicitudes.html", 1800);
+    } catch (error) {
+      avisoError(error.message);
+      btnRechazarSolicitud.classList.remove("disabled");
+    }
+  });
+}
+
+// Cierre del modal
 if (btnCerrarModal && modalSolicitudAceptada) {
-  btnCerrarModal.addEventListener("click", function() {
+  btnCerrarModal.addEventListener("click", function () {
     modalSolicitudAceptada.classList.remove("active");
     window.location.href = "solicitudes.html";
   });
