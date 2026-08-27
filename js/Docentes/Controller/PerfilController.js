@@ -5,18 +5,35 @@ import {
 } from "../Service/PerfilService.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const correoGuardado = obtenerCorreoSesion();
   const perfilCorreo = document.getElementById("perfilCorreo");
+  const perfilNombre = document.getElementById("perfilNombre");
+  const perfilRol = document.getElementById("perfilRol");
+  const perfilClave = document.getElementById("perfilClave");
   const btnLogout = document.getElementById("btnLogout");
 
   try {
     const perfil = await obtenerPerfilSesion();
-    perfilCorreo.textContent = perfil?.correo || correoGuardado || "Correo no disponible";
+
+    escribir(perfilCorreo, perfil.correo || obtenerCorreoSesion() || "Correo no disponible");
+    escribir(perfilNombre, perfil.nombre || "Nombre no disponible");
+    escribir(perfilRol, perfil.rol);
+    escribir(perfilClave, perfil.clave);
   } catch (error) {
-    perfilCorreo.textContent = correoGuardado || "Correo no disponible";
+    console.error("No fue posible cargar el perfil.", error);
+
+    escribir(perfilCorreo, obtenerCorreoSesion() || "Correo no disponible");
+    escribir(perfilNombre, "Nombre no disponible");
+    escribir(perfilRol, "—");
+    escribir(perfilClave, "—");
   }
 
   btnLogout?.addEventListener("click", function () {
     cerrarSesion();
   });
 });
+
+function escribir(elemento, valor) {
+  if (elemento) {
+    elemento.textContent = valor;
+  }
+}

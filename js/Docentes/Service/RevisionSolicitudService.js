@@ -1,37 +1,57 @@
 import { solicitarApi } from "./ApiService.js";
+import { RUTAS } from "../../config.js";
+
+const MARCADOR_SOLICITUD_PADRE = "[SOLICITUD_PADRE]";
+
 
 export async function obtenerDetalleSolicitud(idCita) {
-  const cita = await solicitarApi(`/citas-reuniones/${idCita}`);
+  if (!idCita) {
+    throw new Error("No se indicó qué solicitud revisar.");
+  }
+
+ 
+  const cita = await solicitarApi(`${RUTAS.CITAS}/${idCita}`);
+
   const relacion = await solicitarApi(
-    `/estudiante-encargados/${cita.idEstudianteEncargado}`
+    `${RUTAS.ESTUDIANTES_ENCARGADOS}/${cita.idEstudianteEncargado}`
   );
-  const [estudiante, encargado] = await Promise.all([
-    solicitarApi(`/estudiantes/${relacion.idEstudiante}`),
-    solicitarApi(`/encargados/${relacion.idEncargado}`)
-  ]);
-  const usuario = await solicitarApi(`/usuarios/${estudiante.usuarioEstudiante}`);
-  const fecha = separarFechaHora(cita.fechaReunion);
+
+  const estudiante = await solicitarApi(
+    `${RUTAS.ESTUDIANTES}/${relacion.idEstudiante}`
+  );
+
+  const fechaHora = separarFechaHora(cita.citFechaReunion);
 
   return {
     idCita: cita.idCita,
-    solicitante: `${encargado.nombre} ${encargado.apellido}`.trim(),
-    estudiante: `${estudiante.estNombre} ${estudiante.estApellido}`.trim(),
-    correo: usuario.usuEmail,
-    codigo: estudiante.estCodigo,
-    motivo: cita.motivo,
-    fecha: formatearFechaCompleta(fecha.fecha),
-    hora: formatearHora(fecha.hora)
+    idDocente: cita.idDocente,
+    idEstudianteEncargado: cita.idEstudianteEncargado,
+
+    solicitante: cita.nombreEncargado || "No disponible",
+    estudiante: cita.nombreEstudiante ||
+                `${estudiante.estNombre || ""} ${estudiante.estApellido || ""}`.trim(),
+
+    correo: estudiante.estCorreo || "No disponible",
+    codigo: estudiante.estCodigo || "No disponible",
+
+    motivo: cita.citMotivo || "No disponible",
+
+    descripcion: limpiarMarcador(cita.citObservaciones),
+
+    estado: cita.citEstado,
+    fecha: formatearFechaCompleta(fechaHora.fecha),
+    hora: formatearHora(fechaHora.hora),
+
+    fechaCruda: fechaHora.fecha,
+    horaCruda: fechaHora.hora
   };
 }
 
+
 export async function aceptarSolicitud(idCita) {
-  const cita = await solicitarApi(`/citas-reuniones/${idCita}`);
-  const citaActualizada = await solicitarApi(`/citas-reuniones/${idCita}`, {
-    method: "PUT",
-    body: JSON.stringify({
-      ...cita,
-      estado: "ACEPTADA"
-    })
+  const citaActualizada = await solicitarApi(`${RUTAS.CITAS}/${idCita}`, {
+    method: "PATCH",
+    body: JSON.stringify({ citEstado: "ACEPTADA" })
   });
 
   return {
@@ -41,8 +61,39 @@ export async function aceptarSolicitud(idCita) {
   };
 }
 
+export async function rechazarSolicitud(idCita, motivo) {
+  const cuerpo = { citEstado: "RECHAZADA" };
+
+  if (motivo && motivo.trim()) {
+    cuerpo.citObservaciones =
+      `${MARCADOR_SOLICITUD_PADRE} ${motivo.trim()}`.slice(0, 300);
+  }
+
+  const citaActualizada = await solicitarApi(`${RUTAS.CITAS}/${idCita}`, {
+    method: "PATCH",
+    body: JSON.stringify(cuerpo)
+  });
+
+  return {
+    exito: true,
+    mensaje: "La solicitud fue rechazada.",
+    cita: citaActualizada
+  };
+}
+
+// Apoyo
+function limpiarMarcador(observaciones) {
+  if (!observaciones) {
+    return "";
+  }
+
+  return observaciones.startsWith(MARCADOR_SOLICITUD_PADRE)
+    ? observaciones.slice(MARCADOR_SOLICITUD_PADRE.length).trim()
+    : observaciones;
+}
+
 function separarFechaHora(fechaReunion) {
-  const partes = (fechaReunion || "").split("T");
+  const partes = String(fechaReunion || "").split("T");
 
   return {
     fecha: partes[0] || "",
@@ -51,9 +102,12 @@ function separarFechaHora(fechaReunion) {
 }
 
 function formatearFechaCompleta(fecha) {
-  if (!fecha) return "No disponible";
+  if (!fecha) {
+    return "No disponible";
+  }
 
   const [anio, mes, dia] = fecha.split("-").map(Number);
+
   const fechaLocal = new Date(anio, mes - 1, dia);
 
   return new Intl.DateTimeFormat("es-SV", {
@@ -65,12 +119,17 @@ function formatearFechaCompleta(fecha) {
 }
 
 function formatearHora(hora) {
-  if (!hora) return "No disponible";
+  if (!hora) {
+    return "No disponible";
+  }
 
   const [horasTexto, minutos] = hora.split(":");
   let horas = Number(horasTexto);
   const periodo = horas >= 12 ? "P.M" : "A.M";
 
   horas = horas % 12 || 12;
+
   return `${horas}:${minutos} ${periodo}`;
 }
+
+export { MARCADOR_SOLICITUD_PADRE };

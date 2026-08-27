@@ -1,8 +1,7 @@
-const hostApi = ["", "localhost", "127.0.0.1"].includes(window.location.hostname)
-  ? "localhost"
-  : window.location.hostname;
 
-export const API_BASE_URL = `http://${hostApi}:8080/api/v1`;
+import { API_BASE_URL, RUTAS } from "../../config.js";
+
+export { API_BASE_URL };
 
 export async function solicitarApi(ruta, opciones = {}) {
   const configuracion = {
@@ -20,7 +19,7 @@ export async function solicitarApi(ruta, opciones = {}) {
     respuesta = await fetch(`${API_BASE_URL}${ruta}`, configuracion);
   } catch (error) {
     console.error("No fue posible realizar la solicitud.", error);
-    throw new Error("No fue posible completar la solicitud. Intente nuevamente.");
+    throw new Error("No fue posible conectar con el servidor. Verifique que la API esté encendida.");
   }
 
   const tipoContenido = respuesta.headers.get("content-type") || "";
@@ -45,35 +44,56 @@ export async function solicitarApi(ruta, opciones = {}) {
   return contenido;
 }
 
-// Permite utilizar el frontend durante las pruebas sin pasar por el inicio de sesión.
-// Si existe una sesión conserva su empleado; de lo contrario usa el primer docente de la API.
-export async function obtenerEmpleadoActivo() {
-  const idEmpleadoSesion = Number(sessionStorage.getItem("empleadoId"));
 
-  if (idEmpleadoSesion) {
+let docenteEnMemoria = null;
+
+const CORREO_DE_PRUEBA = "ricardo.alvarado@ricaldone.edu.sv";
+
+
+export async function obtenerDocenteActivo() {
+  if (docenteEnMemoria) {
+    return docenteEnMemoria;
+  }
+
+  const idGuardado = Number(sessionStorage.getItem("docenteId"));
+
+  if (idGuardado) {
     try {
-      return await solicitarApi(`/empleados/${idEmpleadoSesion}`);
+      docenteEnMemoria = await solicitarApi(`${RUTAS.DOCENTES}/${idGuardado}`);
+      return docenteEnMemoria;
     } catch (error) {
-      // Si la sesión guardada ya no existe, continúa con un empleado disponible.
+      // La sesión guardada ya no es válida; se limpia y se continúa.
+      sessionStorage.removeItem("docenteId");
     }
   }
 
-  const empleados = await solicitarApi("/empleados");
-  const listaEmpleados = Array.isArray(empleados) ? empleados : [];
-  const empleado = listaEmpleados.find(registro =>
-    registro.empCorreo?.trim().toLowerCase() === "docente.prueba@ricaldone.edu.sv"
-  ) || listaEmpleados.find(registro =>
-    registro.empRol?.trim().toUpperCase().includes("DOCENTE")
-  ) || listaEmpleados[0];
+  // Sin sesión válida: se busca el docente de prueba.
+  const docentes = await solicitarApi(RUTAS.DOCENTES);
+  const lista = Array.isArray(docentes) ? docentes : [];
 
-  if (!empleado) {
-    throw new Error("No se encontraron empleados disponibles.");
+  const docente = lista.find(
+    registro => registro.docCorreo?.trim().toLowerCase() === CORREO_DE_PRUEBA
+  ) || lista[0];
+
+  if (!docente) {
+    throw new Error("No hay docentes registrados en el sistema.");
   }
 
-  return empleado;
+  sessionStorage.setItem("docenteId", docente.idDocente);
+  docenteEnMemoria = docente;
+
+  return docente;
 }
 
-export async function obtenerIdEmpleadoActivo() {
-  const empleado = await obtenerEmpleadoActivo();
-  return Number(empleado.idEmpleado);
+export async function obtenerIdDocenteActivo() {
+  const docente = await obtenerDocenteActivo();
+  return Number(docente.idDocente);
 }
+
+export function cerrarSesion() {
+  sessionStorage.removeItem("docenteId");
+  docenteEnMemoria = null;
+}
+
+export const obtenerEmpleadoActivo = obtenerDocenteActivo;
+export const obtenerIdEmpleadoActivo = obtenerIdDocenteActivo;

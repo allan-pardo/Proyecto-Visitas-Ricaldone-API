@@ -31,7 +31,7 @@
                 <div class="collapse navbar-collapse" id="navbarAdminPerfil">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="index.html">Docentes</a>
+                            <a class="nav-link" href="index.html">Personal</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="Perfil.html">Perfil</a>
@@ -52,11 +52,17 @@
                     class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
             </div>
 
+            <!--
+                Los valores iniciales dicen "Cargando..." en lugar de
+                "no disponible". Asi se distingue una consulta en curso
+                de un campo que la API devolvio vacio.
+            -->
             <div class="row g-3 text-start">
+
                 <div class="col-12">
                     <div class="bg-white p-3 rounded-3 shadow-sm">
                         <label class="d-block text-muted small mb-1">Nombre</label>
-                        <div class="text-dark" id="perfilAdminNombre">Nombre no disponible</div>
+                        <div class="text-dark fw-semibold" id="perfilAdminNombre">Cargando...</div>
                     </div>
                 </div>
 
@@ -64,19 +70,37 @@
                     <div class="bg-white p-3 rounded-3 shadow-sm">
                         <label class="d-block text-muted small mb-1">Correo</label>
                         <div class="text-dark text-decoration-underline text-break" id="perfilAdminCorreo">
-                            Correo no disponible
+                            Cargando...
                         </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="bg-white p-3 rounded-3 shadow-sm">
+                        <label class="d-block text-muted small mb-1">Rol</label>
+                        <div class="text-dark" id="perfilAdminRol">Cargando...</div>
                     </div>
                 </div>
 
             </div>
         </section>
 
-        <div class="d-flex justify-content-center">
-            <a href="index.html" id="btnCerrarSesionAdmin"
+        <div class="d-flex justify-content-center gap-3">
+            <a href="index.html"
                 class="btn text-white px-5 py-2 rounded-pill fw-semibold shadow text-decoration-none"
                 style="background-color: #1e2530; font-size: 1.1rem;">
-                Volver a docentes
+                Volver al personal
+            </a>
+
+            <!--
+                Este boton si cierra sesion. Antes el unico boton decia
+                "Volver a docentes" pero limpiaba la sesion en silencio,
+                asi que el administrador la perdia sin saberlo.
+            -->
+            <a href="InicioSesion.html" id="btnCerrarSesionAdmin"
+                class="btn btn-outline-dark px-4 py-2 rounded-pill fw-semibold text-decoration-none"
+                style="font-size: 1.1rem;">
+                Cerrar sesión
             </a>
         </div>
     </main>

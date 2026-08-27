@@ -1,5 +1,11 @@
 import { solicitarApi } from "./ApiService.js";
+import { RUTAS } from "../../config.js";
 import { validarPropuesta } from "./validaciones.js";
+
+const MARCADOR_SOLICITUD_PADRE = "[SOLICITUD_PADRE]";
+
+
+const LIMITE_OBSERVACIONES = 300;
 
 export { validarPropuesta };
 
@@ -12,7 +18,6 @@ export function obtenerFechaActual() {
 
     return `${anio}-${mes}-${dia}`;
 }
-
 
 export function formatearFecha(fecha) {
     if (!fecha) {
@@ -31,7 +36,6 @@ export function formatearFecha(fecha) {
 
     return `${dia}/${mes}/${anio}`;
 }
-
 
 export function formatearHora(hora) {
     if (!hora) {
@@ -53,7 +57,7 @@ export function formatearHora(hora) {
 
     return `${horas}:${minutos} ${periodo}`;
 }
-  
+
 export function crearPropuesta(fecha, hora) {
     return {
         fecha: formatearFecha(fecha),
@@ -61,20 +65,58 @@ export function crearPropuesta(fecha, hora) {
     };
 }
 
-export async function guardarPropuesta(idCita, fecha, hora, justificacion) {
-    const cita = await solicitarApi(`/citas-reuniones/${idCita}`);
-    const observaciones = [
-        cita.observaciones,
-        justificacion ? `Reprogramación: ${justificacion}` : ""
-    ].filter(Boolean).join(" | ");
+export async function obtenerCita(idCita) {
+    const cita = await solicitarApi(`${RUTAS.CITAS}/${idCita}`);
+    const partes = String(cita.citFechaReunion || "").split("T");
 
-    return solicitarApi(`/citas-reuniones/${idCita}`, {
-        method: "PUT",
+    return {
+        idCita: cita.idCita,
+        estudiante: cita.nombreEstudiante || "Estudiante no disponible",
+        encargado: cita.nombreEncargado || "Encargado no disponible",
+        motivo: cita.citMotivo || "",
+        estado: cita.citEstado,
+        fecha: partes[0] || "",
+        hora: (partes[1] || "").slice(0, 5)
+    };
+}
+
+export async function guardarPropuesta(idCita, fecha, hora, justificacion) {
+    const validacion = validarPropuesta(fecha, hora);
+
+    if (!validacion.valido) {
+        throw new Error(validacion.mensaje);
+    }
+
+    const cita = await solicitarApi(`${RUTAS.CITAS}/${idCita}`);
+
+    return solicitarApi(`${RUTAS.CITAS}/${idCita}`, {
+        method: "PATCH",
         body: JSON.stringify({
-            ...cita,
-            estado: "PENDIENTE",
-            observaciones,
-            fechaReunion: `${fecha}T${hora}:00`
+            citEstado: "POSPUESTA",
+            citObservaciones: construirObservaciones(cita.citObservaciones, justificacion),
+            citFechaReunion: `${fecha}T${hora}:00`
         })
     });
 }
+
+function construirObservaciones(observacionActual, justificacion) {
+    const original = observacionActual || "";
+    const llevaMarcador = original.startsWith(MARCADOR_SOLICITUD_PADRE);
+
+    const cuerpo = llevaMarcador
+        ? original.slice(MARCADOR_SOLICITUD_PADRE.length).trim()
+        : original;
+
+    const texto = [
+        cuerpo,
+        justificacion ? `Reprogramación: ${justificacion.trim()}` : ""
+    ].filter(Boolean).join(" | ");
+
+    const completo = llevaMarcador
+        ? `${MARCADOR_SOLICITUD_PADRE} ${texto}`
+        : texto;
+
+    return completo.slice(0, LIMITE_OBSERVACIONES);
+}
+
+export { MARCADOR_SOLICITUD_PADRE };

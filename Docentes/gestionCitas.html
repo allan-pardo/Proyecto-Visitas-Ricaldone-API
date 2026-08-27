@@ -58,14 +58,14 @@
         <div class="mx-auto mb-5" style="max-width: 560px;">
             <ul class="nav nav-pills bg-dark-subtle rounded-pill p-1 justify-content-center" id="tabsCitas">
                 <li class="nav-item w-50">
-                    <button class="nav-link active rounded-pill w-100" data-bs-toggle="pill" data-bs-target="#historialCitas">
+                    <button class="nav-link active rounded-pill w-100" data-bs-toggle="pill"
+                        data-bs-target="#historialCitas">
                         Historial
                     </button>
                 </li>
 
                 <li class="nav-item w-50">
-                    <button class="nav-link rounded-pill w-100" data-bs-toggle="pill"
-                        data-bs-target="#nuevaCita">
+                    <button class="nav-link rounded-pill w-100" data-bs-toggle="pill" data-bs-target="#nuevaCita">
                         Nueva Cita
                     </button>
                 </li>
@@ -85,12 +85,13 @@
                             <span class="input-group-text bg-white border-end-0 rounded-start-pill">
                                 🔍
                             </span>
-                            <input type="text" class="form-control border-start-0 rounded-end-pill"
-                                placeholder="Buscar...">
+                            <input type="text" id="inputBuscarCita" class="form-control border-start-0 rounded-end-pill"
+                                placeholder="Buscar por estudiante o asunto..." maxlength="100">
                         </div>
 
                         <div class="filtros-historial" role="group" aria-label="Filtrar historial de citas">
-                            <input type="radio" class="btn-check" name="filtro" id="filtroHistorial" value="Todos" checked>
+                            <input type="radio" class="btn-check" name="filtro" id="filtroHistorial" value="Todos"
+                                checked>
                             <label class="btn btn-secondary btn-sm rounded-pill px-3 btn-filtro" for="filtroHistorial">
                                 Historial
                             </label>
@@ -141,6 +142,7 @@
                                         <th>Estudiante</th>
                                         <th>Asunto</th>
                                         <th>Estado</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
 
@@ -184,32 +186,31 @@
                             <div class="mb-3">
                                 <label class="form-label" for="asuntoCita">Asunto <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control rounded-pill" id="asuntoCita"
-                                    name="asuntoCita" placeholder="Asunto" maxlength="200" required>
+                                <input type="text" class="form-control rounded-pill" id="asuntoCita" name="asuntoCita"
+                                    placeholder="Asunto" maxlength="200" required>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label" for="fechaCita">Fecha <span
                                             class="text-danger">*</span></label>
-                                    <input type="date" class="form-control rounded-pill" id="fechaCita"
-                                        name="fechaCita" required>
+                                    <input type="date" class="form-control rounded-pill" id="fechaCita" name="fechaCita"
+                                        required>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label class="form-label" for="horaCita">Hora <span
                                             class="text-danger">*</span></label>
-                                    <input type="time" class="form-control rounded-pill" id="horaCita"
-                                        name="horaCita" required>
+                                    <input type="time" class="form-control rounded-pill" id="horaCita" name="horaCita"
+                                        required>
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label" for="descripcionCita">Descripción de la
                                     convocatoria <span class="text-danger">*</span></label>
-                                <textarea class="form-control rounded-4" id="descripcionCita"
-                                    name="descripcionCita" rows="2" maxlength="255" placeholder="Mensaje"
-                                    required></textarea>
+                                <textarea class="form-control rounded-4" id="descripcionCita" name="descripcionCita"
+                                    rows="2" maxlength="255" placeholder="Mensaje" required></textarea>
                             </div>
 
                             <div class="mb-4">
@@ -221,8 +222,7 @@
                                 </select>
                             </div>
 
-                            <button type="submit" id="btnEnviarCita"
-                                class="btn btn-dark w-100 rounded-pill py-2">
+                            <button type="submit" id="btnEnviarCita" class="btn btn-dark w-100 rounded-pill py-2">
                                 Enviar
                             </button>
 
@@ -317,6 +317,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="../js/Docentes/Controller/GestionCitasController.js"></script>
 </body>
+
 </html>

@@ -1,10 +1,10 @@
-
 import { solicitarApi } from "./ApiService.js";
+import { RUTAS } from "../../config.js";
 import { validarDatosCita } from "./validaciones.js";
-
 
 let citas = [];
 let estudiantesEncargados = [];
+
 const MARCADOR_SOLICITUD_PADRE = "[SOLICITUD_PADRE]";
 
 const nombresEstado = {
@@ -16,45 +16,74 @@ const nombresEstado = {
   FINALIZADA: "Finalizado"
 };
 
+const estadosApi = Object.fromEntries(
+  Object.entries(nombresEstado).map(([clave, valor]) => [valor, clave])
+);
+
 export { validarDatosCita };
 
-// Obtendrá desde la API las citas asociadas al empleado que inició sesión.
-export async function obtenerCitas(idEmpleado) {
-  if (!idEmpleado) {
-    throw new Error("No se encontró el empleado de la sesión.");
+
+// Lectura
+
+export async function obtenerCitas(idDocente) {
+  if (!idDocente) {
+    throw new Error("No se encontró el docente de la sesión.");
   }
 
   const citasApi = await solicitarApi(
-    `/citas-reuniones/por-empleado/${encodeURIComponent(idEmpleado)}`
+    `${RUTAS.CITAS}/por-docente/${encodeURIComponent(idDocente)}`
   );
 
   citas = (Array.isArray(citasApi) ? citasApi : [])
-    .filter(cita => !cita.observaciones?.startsWith(MARCADOR_SOLICITUD_PADRE))
+    .filter(cita => !cita.citObservaciones?.startsWith(MARCADOR_SOLICITUD_PADRE))
     .map(convertirCitaParaVista);
 
   return citas;
 }
 
+
 export async function obtenerEstudiantesEncargados() {
   if (estudiantesEncargados.length === 0) {
-    const relacionesApi = await solicitarApi("/estudiante-encargados");
+    const relacionesApi = await solicitarApi(RUTAS.ESTUDIANTES_ENCARGADOS);
     estudiantesEncargados = Array.isArray(relacionesApi) ? relacionesApi : [];
   }
 
   return estudiantesEncargados;
 }
 
-// Nos permite agregar una nueva cita mediante la API.
-export async function agregarCita(datosCita, idEmpleado) {
-  const citaGuardada = await solicitarApi("/citas-reuniones", {
+
+export async function buscarCitas(idDocente, texto) {
+  if (!texto || !texto.trim()) {
+    return obtenerCitas(idDocente);
+  }
+
+  const resultados = await solicitarApi(
+    `${RUTAS.CITAS}/buscar?idDocente=${encodeURIComponent(idDocente)}` +
+    `&texto=${encodeURIComponent(texto.trim())}`
+  );
+
+  return (Array.isArray(resultados) ? resultados : []).map(convertirCitaParaVista);
+}
+
+
+// Crear
+export async function agregarCita(datosCita, idDocente) {
+  const validacion = validarDatosCita(datosCita);
+
+  if (!validacion.valido) {
+    throw new Error(validacion.mensaje);
+  }
+
+  const citaGuardada = await solicitarApi(RUTAS.CITAS, {
     method: "POST",
     body: JSON.stringify({
-      idEmpleado: Number(idEmpleado),
+      idDocente: Number(idDocente),
       idEstudianteEncargado: Number(datosCita.idEstudianteEncargado),
-      motivo: datosCita.asunto,
-      estado: "PENDIENTE",
-      observaciones: datosCita.descripcion,
-      fechaReunion: `${datosCita.fecha}T${datosCita.hora}:00`
+      citMotivo: datosCita.asunto,
+      citEstado: "PENDIENTE",
+      citObservaciones: datosCita.descripcion,
+      // La API espera LocalDateTime: 2026-09-11T14:30:00
+      citFechaReunion: `${datosCita.fecha}T${datosCita.hora}:00`
     })
   });
 
@@ -64,7 +93,76 @@ export async function agregarCita(datosCita, idEmpleado) {
   return nuevaCita;
 }
 
-// Filtrará las citas según su estado mostrado en pantalla.
+
+// Actualizar
+export async function actualizarCita(idCita, datos) {
+  const citaActual = citas.find(cita => Number(cita.idCita) === Number(idCita));
+
+  if (!citaActual) {
+    throw new Error("No se encontró la cita que intenta actualizar.");
+  }
+
+  const fecha = datos.fecha || citaActual.fechaCruda;
+  const hora = datos.hora || citaActual.horaCruda || "00:00";
+
+  const citaActualizada = await solicitarApi(`${RUTAS.CITAS}/${idCita}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      idDocente: Number(citaActual.idDocente),
+      idEstudianteEncargado: Number(
+        datos.idEstudianteEncargado ?? citaActual.idEstudianteEncargado
+      ),
+      citMotivo: datos.asunto ?? citaActual.asunto,
+      citEstado: datos.estado ?? citaActual.estadoApi,
+      citObservaciones: datos.descripcion ?? citaActual.descripcion,
+      citFechaReunion: `${fecha}T${hora}:00`
+    })
+  });
+
+  return actualizarEnMemoria(convertirCitaParaVista(citaActualizada));
+}
+
+export async function reprogramarCita(idCita, fecha, hora, observaciones) {
+  const citaActualizada = await solicitarApi(`${RUTAS.CITAS}/${idCita}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      citFechaReunion: `${fecha}T${hora}:00`,
+      citObservaciones: observaciones,
+      citEstado: "POSPUESTA"
+    })
+  });
+
+  return actualizarEnMemoria(convertirCitaParaVista(citaActualizada));
+}
+
+export async function cambiarEstadoCita(idCita, estado, observaciones) {
+  const cuerpo = { citEstado: estado };
+
+  if (observaciones !== undefined) {
+    cuerpo.citObservaciones = observaciones;
+  }
+
+  const citaActualizada = await solicitarApi(`${RUTAS.CITAS}/${idCita}`, {
+    method: "PATCH",
+    body: JSON.stringify(cuerpo)
+  });
+
+  return actualizarEnMemoria(convertirCitaParaVista(citaActualizada));
+}
+
+// Eliminar
+export async function eliminarCita(idCita) {
+  await solicitarApi(`${RUTAS.CITAS}/${idCita}`, { method: "DELETE" });
+
+  citas = citas.filter(cita => Number(cita.idCita) !== Number(idCita));
+
+  return true;
+}
+
+
+// Filtro en pantalla
+
+
 export function filtrarCitasPorEstado(estado) {
   if (estado === "Todos") {
     return citas;
@@ -73,26 +171,64 @@ export function filtrarCitasPorEstado(estado) {
   return citas.filter(cita => cita.estado === estado);
 }
 
+
+export async function filtrarCitasEnApi(idDocente, estadoVisible) {
+  if (estadoVisible === "Todos") {
+    return obtenerCitas(idDocente);
+  }
+
+  const estadoApi = estadosApi[estadoVisible] || estadoVisible.toUpperCase();
+
+  const resultados = await solicitarApi(
+    `${RUTAS.CITAS}/por-docente/${encodeURIComponent(idDocente)}?estado=${estadoApi}`
+  );
+
+  citas = (Array.isArray(resultados) ? resultados : []).map(convertirCitaParaVista);
+
+  return citas;
+}
+
+
+// Conversión API → vista
+
 function convertirCitaParaVista(cita) {
+  const fechaHora = separarFechaHora(cita.citFechaReunion);
+
   const relacion = estudiantesEncargados.find(
     registro => Number(registro.idEstudianteEncargado) === Number(cita.idEstudianteEncargado)
   );
-  const fechaHora = separarFechaHora(cita.fechaReunion);
 
   return {
     idCita: cita.idCita,
-    idEmpleado: cita.idEmpleado,
+    idDocente: cita.idDocente,
     idEstudianteEncargado: cita.idEstudianteEncargado,
-    fechaReunion: cita.fechaReunion,
+    fechaReunion: cita.citFechaReunion,
     fecha: formatearFechaEspanol(fechaHora.fecha),
     hora: formatearHoraAMPM(fechaHora.hora),
     fechaHora: `${formatearFechaEspanol(fechaHora.fecha)}, ${formatearHoraAMPM(fechaHora.hora)}`,
+    // Campos crudos, útiles para rellenar formularios de edición.
+    fechaCruda: fechaHora.fecha,
+    horaCruda: fechaHora.hora,
     estudiante: cita.nombreEstudiante || relacion?.nombreEstudiante || "Estudiante no disponible",
     encargado: cita.nombreEncargado || relacion?.nombreEncargado || "Encargado no disponible",
-    asunto: cita.motivo,
-    descripcion: cita.observaciones || "",
-    estado: nombresEstado[cita.estado] || cita.estado
+    docente: cita.nombreDocente || "",
+    asunto: cita.citMotivo || "",
+    descripcion: cita.citObservaciones || "",
+    estado: nombresEstado[cita.citEstado] || cita.citEstado,
+    estadoApi: cita.citEstado
   };
+}
+
+function actualizarEnMemoria(citaConvertida) {
+  const indice = citas.findIndex(
+    cita => Number(cita.idCita) === Number(citaConvertida.idCita)
+  );
+
+  if (indice >= 0) {
+    citas[indice] = citaConvertida;
+  }
+
+  return citaConvertida;
 }
 
 function separarFechaHora(fechaReunion) {
@@ -100,7 +236,7 @@ function separarFechaHora(fechaReunion) {
     return { fecha: "", hora: "" };
   }
 
-  const partes = fechaReunion.split("T");
+  const partes = String(fechaReunion).split("T");
 
   return {
     fecha: partes[0] || "",
@@ -108,17 +244,10 @@ function separarFechaHora(fechaReunion) {
   };
 }
 
-// Se comprobará si la fecha es anterior al día actual.
-function fechaEsPasada(fecha) {
-  const fechaSeleccionada = new Date(`${fecha}T00:00:00`);
+// Formato
 
-  const fechaActual = new Date();
-  fechaActual.setHours(0, 0, 0, 0);
 
-  return fechaSeleccionada < fechaActual;
-}
-
-// Convierte 2026-07-23 en 23 de julio de 2026.
+// Convierte 2026-07-23 en "23 de julio de 2026".
 export function formatearFechaEspanol(fecha) {
   if (!fecha) {
     return "";
@@ -142,6 +271,7 @@ export function formatearFechaEspanol(fecha) {
   return `${dia} de ${meses[indiceMes]} de ${anio}`;
 }
 
+// Convierte 14:30 en "2:30 P.M".
 export function formatearHoraAMPM(hora) {
   if (!hora) {
     return "";

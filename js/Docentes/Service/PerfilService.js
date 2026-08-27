@@ -1,24 +1,25 @@
-import { obtenerEmpleadoActivo } from "./ApiService.js";
+import { obtenerDocenteActivo, cerrarSesion as limpiarSesionApi } from "./ApiService.js";
 
 export function obtenerCorreoSesion() {
   return sessionStorage.getItem("userCorreo");
 }
 
 export async function obtenerPerfilSesion() {
-  const empleado = await obtenerEmpleadoActivo();
+  const docente = await obtenerDocenteActivo();
 
   return {
-    idEmpleado: empleado.idEmpleado,
-    correo: empleado.empCorreo,
-    nombre: `${empleado.empNombre} ${empleado.empApellido}`.trim(),
-    rol: empleado.empRol
+    idDocente: docente.idDocente,
+    correo: docente.docCorreo || "",
+    nombre: `${docente.docNombre || ""} ${docente.docApellido || ""}`.trim(),
+    clave: docente.docClave || "",
+    rol: docente.docTipo || docente.docRol || "Docente"
   };
 }
 
+
 export function cerrarSesion() {
-  sessionStorage.removeItem("userCorreo");
-  sessionStorage.removeItem("userId");
-  sessionStorage.removeItem("empleadoId");
-  sessionStorage.removeItem("userNombre");
-  sessionStorage.removeItem("userRol");
+  limpiarSesionApi();
+
+  ["userCorreo", "userId", "userNombre", "userRol", "empleadoId", "docenteId"]
+    .forEach(clave => sessionStorage.removeItem(clave));
 }

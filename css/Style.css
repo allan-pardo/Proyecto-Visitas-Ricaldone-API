@@ -9,6 +9,22 @@
   }
 }
 
+/* Mantiene los botones de acción en una sola línea */
+.tabla-citas td:last-child {
+    white-space: nowrap;
+    min-width: 90px;
+}
+
+.tabla-citas .btn-editar-cita,
+.tabla-citas .btn-eliminar-cita {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+
 /* Tabla de solicitudes inspirada en un diseño limpio y sin bordes verticales. */
 .tabla-solicitudes-contenedor {
   background-color: #ffffff;
