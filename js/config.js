@@ -3,8 +3,10 @@ const HOST_API = ["", "localhost", "127.0.0.1"].includes(window.location.hostnam
     : window.location.hostname;
 
 const PUERTO_API = 8080;
+const PUERTO_AUTH = 8081;
 
 export const API_BASE_URL = `http://${HOST_API}:${PUERTO_API}/api/v1`;
+export const AUTH_BASE_URL = `http://${HOST_API}:${PUERTO_AUTH}/api/v1`;
 
 export const RUTAS = {
 

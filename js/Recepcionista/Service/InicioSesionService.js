@@ -1,4 +1,4 @@
-import { solicitarApi } from "../../Docentes/Service/ApiService.js";
+import { iniciarSesionPersonal } from "../../AuthApiService.js";
 import { validarCorreoInstitucional } from "./validaciones.js";
 
 export { validarCorreoInstitucional };
@@ -11,36 +11,28 @@ export async function iniciarSesion(correo, contrasena) {
     };
   }
 
-  try {
-    const recepcionista = await solicitarApi("/recepcionistas/inicio-sesion", {
-      method: "POST",
-      body: JSON.stringify({
-        recCorreo: correo,
-        recPassword: contrasena
-      })
-    });
+  const resultado = await iniciarSesionPersonal(correo, contrasena);
 
-    if (recepcionista.recRol?.toUpperCase() !== "RECEPCIONISTA") {
-      return {
-        exito: false,
-        mensaje: "Este acceso es exclusivo para recepcionistas."
-      };
-    }
+  if (!resultado.exito) {
+    return resultado;
+  }
 
-    return {
-      exito: true,
-      redireccion: "index.html",
-      sesion: {
-        idRecepcionista: recepcionista.idRecepcionista,
-        correo: recepcionista.recCorreo,
-        nombre: `${recepcionista.recNombre} ${recepcionista.recApellido}`.trim(),
-        rolRecepcionista: recepcionista.recRol
-      }
-    };
-  } catch (error) {
+  const rol = String(resultado.datos?.rol || "").toUpperCase();
+
+  if (rol !== "RECEPCIONISTA") {
     return {
       exito: false,
-      mensaje: error.message
+      mensaje: "Este acceso es exclusivo para recepcionistas."
     };
   }
+
+  return {
+    exito: true,
+    redireccion: "index.html",
+    sesion: {
+      idRecepcionista: resultado.datos.idUsuario,
+      correo: resultado.datos.email,
+      rol
+    }
+  };
 }

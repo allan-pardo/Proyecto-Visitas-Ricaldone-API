@@ -41,20 +41,9 @@ if (formInicioSesion) {
         botonIngresar.disabled = false;
 
         if (resultado.exito) {
-            const rolRequerido = formInicioSesion.dataset.rolRequerido;
-            const rolEmpleado = resultado.sesion.rolEmpleado?.toUpperCase();
-
-            if (rolRequerido && rolEmpleado !== rolRequerido) {
-                contrasenaInput.setCustomValidity("Este acceso es exclusivo para administradores.");
-                contrasenaInput.reportValidity();
-                return;
-            }
-
             sessionStorage.setItem("userCorreo", resultado.sesion.correo);
-            sessionStorage.setItem("userId", resultado.sesion.idUsuario);
-            sessionStorage.setItem("empleadoId", resultado.sesion.idEmpleado);
-            sessionStorage.setItem("userNombre", resultado.sesion.nombre);
-            sessionStorage.setItem("userRol", resultado.sesion.rolEmpleado);
+            sessionStorage.setItem("userRol", resultado.sesion.rol);
+            sessionStorage.setItem("docenteId", resultado.sesion.idDocente);
             window.location.href = resultado.redireccion;
         } else {
             contrasenaInput.setCustomValidity(resultado.mensaje);

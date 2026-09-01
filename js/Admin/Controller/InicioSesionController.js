@@ -22,7 +22,7 @@ contrasenaAdminInput?.addEventListener("input", function () {
   contrasenaAdminInput.setCustomValidity("");
 });
 
-formInicioSesionAdmin?.addEventListener("submit", function (evento) {
+formInicioSesionAdmin?.addEventListener("submit", async function (evento) {
   evento.preventDefault();
 
   correoAdminInput.setCustomValidity("");
@@ -37,10 +37,14 @@ formInicioSesionAdmin?.addEventListener("submit", function (evento) {
     return;
   }
 
-  const resultado = iniciarSesionAdministrador(
+  const botonIngresar = formInicioSesionAdmin.querySelector('button[type="submit"]');
+
+  botonIngresar.disabled = true;
+  const resultado = await iniciarSesionAdministrador(
     correoAdminInput.value,
     contrasenaAdminInput.value
   );
+  botonIngresar.disabled = false;
 
   if (!resultado.exito) {
     contrasenaAdminInput.setCustomValidity(resultado.mensaje);

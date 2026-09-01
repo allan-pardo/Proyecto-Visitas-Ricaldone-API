@@ -4,8 +4,6 @@ import { RUTAS } from "../../config.js";
 
 let administradorEnMemoria = null;
 
-const CORREO_DE_PRUEBA = "admin.principal@ricaldone.edu.sv";
-
 export async function obtenerAdministradorActivo() {
   if (administradorEnMemoria) {
     return administradorEnMemoria;
@@ -13,31 +11,18 @@ export async function obtenerAdministradorActivo() {
 
   const idGuardado = Number(sessionStorage.getItem("adminId"));
 
-  if (idGuardado) {
-    try {
-      administradorEnMemoria = await solicitarApi(`${RUTAS.ADMINISTRADORES}/${idGuardado}`);
-      return administradorEnMemoria;
-    } catch (error) {
-      // La sesión guardada ya no es válida; se limpia y se continúa.
-      sessionStorage.removeItem("adminId");
-    }
+  if (!idGuardado) {
+    throw new Error("No hay una sesión de administrador activa. Inicie sesión nuevamente.");
   }
 
-  const administradores = await solicitarApi(RUTAS.ADMINISTRADORES);
-  const lista = Array.isArray(administradores) ? administradores : [];
-
-  const administrador = lista.find(
-    registro => registro.admCorreo?.trim().toLowerCase() === CORREO_DE_PRUEBA
-  ) || lista[0];
-
-  if (!administrador) {
-    throw new Error("No hay administradores registrados en el sistema.");
+  try {
+    administradorEnMemoria = await solicitarApi(`${RUTAS.ADMINISTRADORES}/${idGuardado}`);
+    return administradorEnMemoria;
+  } catch (error) {
+    // La sesión guardada ya no es válida; se exige iniciar sesión de nuevo.
+    sessionStorage.removeItem("adminId");
+    throw new Error("No hay una sesión de administrador activa. Inicie sesión nuevamente.");
   }
-
-  sessionStorage.setItem("adminId", administrador.idAdministrador);
-  administradorEnMemoria = administrador;
-
-  return administrador;
 }
 
 export async function obtenerPerfilAdministrador() {

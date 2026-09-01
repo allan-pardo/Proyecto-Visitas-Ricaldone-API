@@ -47,9 +47,6 @@ export async function solicitarApi(ruta, opciones = {}) {
 
 let docenteEnMemoria = null;
 
-const CORREO_DE_PRUEBA = "ricardo.alvarado@ricaldone.edu.sv";
-
-
 export async function obtenerDocenteActivo() {
   if (docenteEnMemoria) {
     return docenteEnMemoria;
@@ -57,32 +54,18 @@ export async function obtenerDocenteActivo() {
 
   const idGuardado = Number(sessionStorage.getItem("docenteId"));
 
-  if (idGuardado) {
-    try {
-      docenteEnMemoria = await solicitarApi(`${RUTAS.DOCENTES}/${idGuardado}`);
-      return docenteEnMemoria;
-    } catch (error) {
-      // La sesión guardada ya no es válida; se limpia y se continúa.
-      sessionStorage.removeItem("docenteId");
-    }
+  if (!idGuardado) {
+    throw new Error("No hay una sesión de docente activa. Inicie sesión nuevamente.");
   }
 
-  // Sin sesión válida: se busca el docente de prueba.
-  const docentes = await solicitarApi(RUTAS.DOCENTES);
-  const lista = Array.isArray(docentes) ? docentes : [];
-
-  const docente = lista.find(
-    registro => registro.docCorreo?.trim().toLowerCase() === CORREO_DE_PRUEBA
-  ) || lista[0];
-
-  if (!docente) {
-    throw new Error("No hay docentes registrados en el sistema.");
+  try {
+    docenteEnMemoria = await solicitarApi(`${RUTAS.DOCENTES}/${idGuardado}`);
+    return docenteEnMemoria;
+  } catch (error) {
+    // La sesión guardada ya no es válida; se exige iniciar sesión de nuevo.
+    sessionStorage.removeItem("docenteId");
+    throw new Error("No hay una sesión de docente activa. Inicie sesión nuevamente.");
   }
-
-  sessionStorage.setItem("docenteId", docente.idDocente);
-  docenteEnMemoria = docente;
-
-  return docente;
 }
 
 export async function obtenerIdDocenteActivo() {

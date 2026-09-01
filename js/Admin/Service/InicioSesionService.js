@@ -1,18 +1,10 @@
+import { iniciarSesionPersonal } from "../../AuthApiService.js";
+
 export function validarCorreoAdministrador(correo) {
   return /^[^@\s]+@ricaldone\.edu\.sv$/i.test(correo.trim());
 }
 
-function obtenerNombreDesdeCorreo(correo) {
-  const nombreCorreo = correo.split("@")[0];
-
-  return nombreCorreo
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map(parte => parte.charAt(0).toUpperCase() + parte.slice(1).toLowerCase())
-    .join(" ");
-}
-
-export function iniciarSesionAdministrador(correo, contrasena) {
+export async function iniciarSesionAdministrador(correo, contrasena) {
   const correoNormalizado = correo.trim().toLowerCase();
 
   if (!validarCorreoAdministrador(correoNormalizado)) {
@@ -22,26 +14,34 @@ export function iniciarSesionAdministrador(correo, contrasena) {
     };
   }
 
-  if (contrasena.length === 0) {
+  const resultado = await iniciarSesionPersonal(correoNormalizado, contrasena);
+
+  if (!resultado.exito) {
+    return resultado;
+  }
+
+  const rol = String(resultado.datos?.rol || "").toUpperCase();
+
+  if (rol !== "ADMINISTRADOR") {
     return {
       exito: false,
-      mensaje: "Ingrese una contraseña."
+      mensaje: "Este acceso es exclusivo para administradores."
     };
   }
 
   return {
     exito: true,
     sesion: {
-      correo: correoNormalizado,
-      nombre: obtenerNombreDesdeCorreo(correoNormalizado),
-      rol: "ADMINISTRADOR"
+      idAdministrador: resultado.datos.idUsuario,
+      correo: resultado.datos.email,
+      rol
     }
   };
 }
 
 export function guardarSesionAdministrador(sesion) {
-  sessionStorage.setItem("adminSesionActiva", "true");
+  sessionStorage.setItem("adminId", sesion.idAdministrador);
   sessionStorage.setItem("adminCorreo", sesion.correo);
-  sessionStorage.setItem("adminNombre", sesion.nombre);
   sessionStorage.setItem("adminRol", sesion.rol);
+  sessionStorage.setItem("adminSesionActiva", "true");
 }

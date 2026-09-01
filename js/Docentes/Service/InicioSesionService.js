@@ -1,73 +1,46 @@
 import { validarCorreoInstitucional } from "./validaciones.js";
-import { solicitarApi } from "./ApiService.js";
+import { iniciarSesionPersonal } from "../../AuthApiService.js";
 
 export { validarCorreoInstitucional };
 
+const ROLES_DOCENTE = [
+  "DOCENTE",
+  "DOCENTE TÉCNICO",
+  "DOCENTE TECNICO",
+  "DOCENTE ACADÉMICO",
+  "DOCENTE ACADEMICO"
+];
+
 export async function iniciarSesion(correo, contrasena) {
-    if (!validarCorreoInstitucional(correo)) {
-        return {
-            exito: false,
-            mensaje: "El correo debe terminar en @ricaldone.edu.sv."
-        };
+  if (!validarCorreoInstitucional(correo)) {
+    return {
+      exito: false,
+      mensaje: "El correo debe terminar en @ricaldone.edu.sv."
+    };
+  }
+
+  const resultado = await iniciarSesionPersonal(correo, contrasena);
+
+  if (!resultado.exito) {
+    return resultado;
+  }
+
+  const rol = String(resultado.datos?.rol || "").toUpperCase();
+
+  if (!ROLES_DOCENTE.includes(rol)) {
+    return {
+      exito: false,
+      mensaje: "Este acceso es exclusivo para docentes."
+    };
+  }
+
+  return {
+    exito: true,
+    redireccion: "index.html",
+    sesion: {
+      idDocente: resultado.datos.idUsuario,
+      correo: resultado.datos.email,
+      rol
     }
-
-    try {
-        const [usuarios, empleados] = await Promise.all([
-            solicitarApi("/usuarios"),
-            solicitarApi("/empleados")
-        ]);
-        const usuarioPorCorreo = usuarios.find(
-            registro => registro.usuEmail?.trim().toLowerCase() === correo
-        );
-
-        if (usuarioPorCorreo?.usuRol?.toUpperCase() === "ESTUDIANTE") {
-            return {
-                exito: false,
-                mensaje: "No está permitido un estudiante en este sistema, retírese."
-            };
-        }
-
-        const empleado = empleados.find(
-            registro => registro.empCorreo?.trim().toLowerCase() === correo
-        );
-
-        if (!empleado || empleado.empClave !== contrasena) {
-            return {
-                exito: false,
-                mensaje: "El correo o la clave del empleado son incorrectos."
-            };
-        }
-
-        const usuario = usuarios.find(
-            registro => Number(registro.idUsuario) === Number(empleado.usuarioEmpleado)
-        );
-
-        if (!usuario) {
-            return {
-                exito: false,
-                mensaje: "El empleado no tiene un usuario asociado."
-            };
-        }
-
-        const esAdministrador = empleado.empRol?.toUpperCase() === "ADMINISTRADOR";
-
-        return {
-            exito: true,
-            redireccion: esAdministrador ? "../Admin/index.html" : "index.html",
-            sesion: {
-                idUsuario: usuario.idUsuario,
-                idEmpleado: empleado.idEmpleado,
-                correo: empleado.empCorreo,
-                nombre: `${empleado.empNombre} ${empleado.empApellido}`.trim(),
-                rolUsuario: usuario.usuRol,
-                rolEmpleado: empleado.empRol
-            }
-        };
-    } catch (error) {
-        return {
-            exito: false,
-            mensaje: error.message
-        };
-    }
-
+  };
 }

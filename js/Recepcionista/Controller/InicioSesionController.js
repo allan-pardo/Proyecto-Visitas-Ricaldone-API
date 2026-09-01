@@ -42,10 +42,8 @@ if (formInicioSesion) {
 
     if (resultado.exito) {
       sessionStorage.setItem("userCorreo", resultado.sesion.correo);
-      sessionStorage.setItem("userId", resultado.sesion.idRecepcionista);
+      sessionStorage.setItem("userRol", resultado.sesion.rol);
       sessionStorage.setItem("recepcionistaId", resultado.sesion.idRecepcionista);
-      sessionStorage.setItem("userNombre", resultado.sesion.nombre);
-      sessionStorage.setItem("userRol", resultado.sesion.rolRecepcionista);
       window.location.href = resultado.redireccion;
     } else {
       contrasenaInput.setCustomValidity(resultado.mensaje);
