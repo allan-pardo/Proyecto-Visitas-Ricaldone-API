@@ -51,21 +51,41 @@
             </div>
 
             <div class="row g-3 text-start">
+
+                <div class="col-12">
+                    <div class="bg-white p-3 rounded-3 shadow-sm">
+                        <label class="d-block text-muted small mb-1">Nombre</label>
+                        <div class="text-dark fw-semibold" id="perfilNombre">Cargando...</div>
+                    </div>
+                </div>
+
                 <div class="col-12">
                     <div class="bg-white p-3 rounded-3 shadow-sm">
                         <label class="d-block text-muted small mb-1">Correo</label>
-                        <div class="text-dark text-decoration-underline" id="perfilCorreo">
-                            Correo no disponible
-                        </div>
+                        <div class="text-dark text-decoration-underline" id="perfilCorreo">Cargando...</div>
                     </div>
                 </div>
+
+                <div class="col-12">
+                    <div class="bg-white p-3 rounded-3 shadow-sm">
+                        <label class="d-block text-muted small mb-1">Rol</label>
+                        <div class="text-dark" id="perfilRol">Cargando...</div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
-        <div class="d-flex justify-content-center">
-            <a href="InicioSesion.html" id="btnLogout"
+        <div class="d-flex justify-content-center gap-3">
+            <a href="index.html"
                 class="btn text-white px-5 py-2 rounded-pill fw-semibold shadow text-decoration-none"
                 style="background-color: #1e2530; font-size: 1.1rem">
+                Volver al inicio
+            </a>
+
+            <a href="../Admin/InicioSesion.html" id="btnLogout"
+                class="btn btn-outline-dark px-4 py-2 rounded-pill fw-semibold text-decoration-none"
+                style="font-size: 1.1rem">
                 Cerrar sesión
             </a>
         </div>

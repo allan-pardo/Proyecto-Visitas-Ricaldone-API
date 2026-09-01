@@ -53,5 +53,5 @@ formInicioSesionAdmin?.addEventListener("submit", async function (evento) {
   }
 
   guardarSesionAdministrador(resultado.sesion);
-  window.location.href = "index.html";
+  window.location.href = resultado.redireccion;
 });
