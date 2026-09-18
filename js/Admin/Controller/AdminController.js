@@ -11,6 +11,7 @@ const empleadoIdInput = document.getElementById("empleadoId");
 const nombreEmpleadoInput = document.getElementById("nombreEmpleado");
 const apellidoEmpleadoInput = document.getElementById("apellidoEmpleado");
 const claveEmpleadoInput = document.getElementById("claveEmpleado");
+const contrasenaEmpleadoInput = document.getElementById("contrasenaEmpleado");
 const correoEmpleadoInput = document.getElementById("correoEmpleado");
 const rolEmpleadoInput = document.getElementById("rolEmpleado");
 const tablaEmpleadosBody = document.getElementById("tablaEmpleadosBody");
@@ -167,6 +168,7 @@ async function editarEmpleado(id) {
     nombreEmpleadoInput.value = empleado.nombre;
     apellidoEmpleadoInput.value = empleado.apellido;
     claveEmpleadoInput.value = empleado.clave;
+    contrasenaEmpleadoInput.value = "";
     correoEmpleadoInput.value = empleado.correo;
     rolEmpleadoInput.value = empleado.rol;
 
@@ -196,6 +198,7 @@ formEmpleado?.addEventListener("submit", async function (e) {
     nombre: nombreEmpleadoInput.value,
     apellido: apellidoEmpleadoInput.value,
     clave: claveEmpleadoInput.value,
+    contrasena: contrasenaEmpleadoInput.value,
     correo: correoEmpleadoInput.value,
     rol: rolEmpleadoInput.value
   });

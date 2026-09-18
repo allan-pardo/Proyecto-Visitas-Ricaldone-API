@@ -90,6 +90,10 @@ function construirCuerpo(datos, config) {
         cuerpo.docTipo = config.tipoDocente;
     }
 
+    if (datos.contrasena) {
+        cuerpo[`${p}Password`] = datos.contrasena;
+    }
+
     return cuerpo;
 }
 
@@ -99,6 +103,7 @@ function normalizarDatos(datosFormulario) {
         nombre: datosFormulario.nombre.trim(),
         apellido: datosFormulario.apellido.trim(),
         clave: datosFormulario.clave.trim(),
+        contrasena: (datosFormulario.contrasena ?? "").trim(),
         correo: datosFormulario.correo.trim().toLowerCase(),
         rol: datosFormulario.rol.trim().toUpperCase()
     };
@@ -183,6 +188,13 @@ export async function guardarEmpleado(datosFormulario) {
         };
     }
 
+    if (!datos.id && !datos.contrasena) {
+        return {
+            exito: false,
+            mensaje: "Debe ingresar una contraseña para crear el registro."
+        };
+    }
+
     try {
         if (!await correoEstaDisponible(datos.correo, datos.id)) {
             return {
@@ -213,6 +225,14 @@ export async function guardarEmpleado(datosFormulario) {
             });
 
             return { exito: true, mensaje: "Registro actualizado correctamente." };
+        }
+
+        // --- Cambio de rol: crea un registro nuevo en otra tabla, que también exige contraseña ---
+        if (!datos.contrasena) {
+            return {
+                exito: false,
+                mensaje: "Debe ingresar una contraseña para crear el registro con el nuevo rol."
+            };
         }
 
         await solicitarApi(config.ruta, {
